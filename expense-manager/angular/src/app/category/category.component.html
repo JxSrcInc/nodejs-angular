@@ -1,0 +1,22 @@
+<p>
+  {{name}}
+</p>
+
+<table cdkDropList (cdkDropListDropped)="drop($event)" >
+  <thead>
+    <tr>
+      <th scope="col">Date</th>
+      <th scope="col">Value</th>
+      <th scope="col">Merchant</th>
+      <th scope="col">Note</th>
+    </tr>
+  </thead>
+  <tbody *ngFor="let record of records" cdkDrag>
+    <tr>
+      <td>{{record.date}}</td>
+      <td>{{record.val}}</td>
+      <td>{{record.merchant}}</td>
+      <td>{{record.note}}</td>
+    </tr>
+  </tbody>
+</table>

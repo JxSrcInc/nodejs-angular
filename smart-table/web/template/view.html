@@ -1,0 +1,26 @@
+<!-- App View -->
+<div class="container">
+
+<div class="row">
+  <div class="btn-group" data-ng-repeat="t in tableList">
+      <button type="button" class="btn btn-primary" ng-click="selectTable(t.title)">{{t.title}}</button>
+  </div>
+</div>
+
+<div class="row">
+    <div ng-if="template === 'table'">
+      <div ng-if="table!==undefined">
+        <!-- need change table.data to table -->
+        <smart-table table="table.data" ></smart-table>
+      </div>
+    </div>
+    <div ng-if="template === 'charts'">
+      <div ng-if="table!==undefined">
+        <charts table="table" ></charts>
+      </div>
+    </div>
+    <div ng-if="template === 'help'">
+      <help></help>
+    </div>
+</div>
+</div>

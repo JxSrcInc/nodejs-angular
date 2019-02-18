@@ -1,0 +1,13 @@
+  <h3>Use Menu Bar (Top)</h3>
+<ul class="list-group">
+  <li class="list-group-item list-group-item-success"><span class="helpMenu"><a href="#/table/table">{{menu[0].name}}</a></span>: {{menu[0].desc}}<span class="badge">{{menu[0].length}} chars</span></li>
+  <li class="list-group-item list-group-item-info"><span class="helpMenu"><a href="#/charts/charts">{{menu[1].name}}</a></span>: {{menu[1].desc}}<span class="badge">{{menu[1].length}} chars</span></li>
+  <li class="list-group-item"><span class="helpMenu">{{menu[2].name}}</span>: {{menu[2].desc}}<span class="badge">{{menu[2].length}} chars</span></li>
+</ul>
+<h3>Use Table Navigation (Second Top)</h3>
+<p>Select a table, <span data-ng-repeat="t in tableList">
+  <span class="helpMenu"><a ng-click="selectTable(t.title)">{{t.title}}</a></span>
+  <span ng-if="t.index < tableList.length-2">, </span>
+  <span ng-if="t.index === tableList.length-2">or </span>
+</span>
+   in table navigation to view data</p>

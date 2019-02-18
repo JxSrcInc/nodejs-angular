@@ -1,0 +1,71 @@
+<button (click)="setConfig()">Config</button>
+<button (click)="setWork()">Work</button>
+
+<div *ngIf="config">
+  <app-config [(categories)]="categories" ></app-config>
+</div>
+<div *ngIf="work">
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Left Panel-->
+      <div class="col-sm-6">
+        <div class=row>
+
+          <select (change)="onChange($event.target.value)" class="form-control">
+
+            <option *ngFor="let category of getCategoryNames()" value={{category}}>
+
+              {{category}}
+
+            </option>
+
+          </select>
+        </div>
+        <div class=row>
+          <table cdkDropList #categoryList="cdkDropList" [cdkDropListData]="category" [cdkDropListConnectedTo]="[recordList]"
+            (cdkDropListDropped)="drop($event)">
+            <thead>
+              <tr>
+                <th scope="col">Date</th>
+                <th scope="col">Value</th>
+                <th scope="col">Merchant</th>
+                <th scope="col">Note</th>
+              </tr>
+            </thead>
+            <tbody *ngFor="let record of category" cdkDrag>
+              <tr>
+                <td>{{record.date}}</td>
+                <td>{{record.val}}</td>
+                <td>{{record.merchant}}</td>
+                <td>{{record.note}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- Right Panel -->
+      <div class="col-sm-6">
+        transaction
+        <table cdkDropList #recordList="cdkDropList" [cdkDropListData]="records" [cdkDropListConnectedTo]="[categoryList]"
+          (cdkDropListDropped)="drop($event)">
+          <thead>
+            <tr>
+              <th scope="col">Date</th>
+              <th scope="col">Value</th>
+              <th scope="col">Merchant</th>
+              <th scope="col">Note</th>
+            </tr>
+          </thead>
+          <tbody *ngFor="let record of records" cdkDrag>
+            <tr>
+              <td>{{record.date}}</td>
+              <td>{{record.val}}</td>
+              <td>{{record.merchant}}</td>
+              <td>{{record.note}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

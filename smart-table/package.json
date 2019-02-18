@@ -1,0 +1,8 @@
+{
+  "name": "smartTable",
+  "version": "0.0.1",
+  "description": "Smart Table Demo project",
+  "dependencies": {
+    "express":"latest"
+  }
+}

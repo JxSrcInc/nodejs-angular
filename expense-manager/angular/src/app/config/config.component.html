@@ -1,0 +1,10 @@
+<p>
+  config works!
+</p>
+<div *ngFor="let category of getNames()">
+  {{category}}
+</div>
+
+
+<input [(ngModel)]="addConfig" type="text" (keypress)="onKeyPress($event)">
+

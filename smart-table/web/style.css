@@ -1,0 +1,17 @@
+.open {
+  color: green;
+}
+.closed {
+  color: orange;
+}
+.overbook {
+  color: red;
+}
+.device {
+  font-weight: bold;
+  font-style: italic;
+}
+.helpMenu {
+  font-weight: bold;
+  font-style: italic;
+}

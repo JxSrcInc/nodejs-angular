@@ -1,0 +1,30 @@
+<!-- SmartTable Template-->
+<div>
+A smart table can automatically adjusts its column number
+to fit different window size and devices. To see how it works,
+
+<ul>
+	<li>on <span class="device">desktop</span> or
+		<span class="device">laptop</span>, change window size using mouse.</li>
+	<li>on <span class="device">tablet</span> or
+		<span class="device">smartphone</span>,
+		turn device around (90 degree) to display smart table in wide
+		 and narrow views.</li>
+</ul>
+</div>
+			<div>
+				<table class="table table-striped" id="table" ng-repeat="tbl in smartTables.value">
+					<thead>
+						<tr>
+							<th style="font-family: 'Couriser New'" ng-repeat="head in tbl.headers" id="header">{{head.value}}</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="row in tbl.rows">
+							<td>{{row[0]}}</td>
+							<td ng-repeat="col in tbl.columns"
+								class="{{getStyle(row, col)}}">{{row[col].space?row[col].space:row[col].maxAvCnt-row[col].apptCnt}}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
