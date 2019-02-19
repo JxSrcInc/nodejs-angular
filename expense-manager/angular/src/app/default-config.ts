@@ -1,4 +1,4 @@
 export class DefaultConfig {
-    src: string = 'C:/Users/JiangJxSrc/Documents/personal/JxSrc/transaction/2018/transaction.csv';
+    src: string = './test.csv';
     categories: string[] = ['Income', 'Cost'];
 }
