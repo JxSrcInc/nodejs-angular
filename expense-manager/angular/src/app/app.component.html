@@ -1,8 +1,9 @@
 <button (click)="setConfig()">Config</button>
 <button (click)="setWork()">Work</button>
-
+<button (click)="loadSrc()">Load</button>
+<button (click)="save()">Save</button>
 <div *ngIf="config">
-  <app-config [(categories)]="categories" ></app-config>
+    <app-config [(categories)]="categories" ></app-config>
 </div>
 <div *ngIf="work">
   <div class="container-fluid">
@@ -45,7 +46,7 @@
       </div>
       <!-- Right Panel -->
       <div class="col-sm-6">
-        transaction
+        <input type="text" class="form-control" [(ngModel)]="src"/>
         <table cdkDropList #recordList="cdkDropList" [cdkDropListData]="records" [cdkDropListConnectedTo]="[categoryList]"
           (cdkDropListDropped)="drop($event)">
           <thead>

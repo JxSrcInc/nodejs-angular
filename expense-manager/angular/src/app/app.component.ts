@@ -3,7 +3,7 @@ import { NodejsService } from './nodejs.service';
 import { Record } from './record';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { Category } from './category';
-
+import { DefaultConfig } from './default-config';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -20,19 +20,25 @@ export class AppComponent implements OnInit {
   work: boolean = true;
   config: boolean = false;
 
-  constructor(private service: NodejsService) { }
+  src: string;
+
+  constructor(private service: NodejsService) { 
+  }
 
   ngOnInit() {
-    this.loadSrc();
+    const defaultConfig  = new DefaultConfig();
+    this.src = defaultConfig.src;
+    this.category = [];
+    this.categoryNames = defaultConfig.categories;
+    this.selectedCategory = this.categoryNames[0];
+    for(let i in this.categoryNames) {
+      const name = this.categoryNames[i];
+      this.categories[name] =  new Category([], name);
+    }
   }
   loadSrc() {
-    this.service.getSrc().subscribe(records => {
+    this.service.getSrc(this.src).subscribe(records => {
       this.records = records['records'];
-      this.category = [];
-      this.categoryNames = ['Income', 'Cost'];
-      this.selectedCategory = "Income";
-      this.categories["Income"] = new Category([], "Income");;
-      this.categories["Cost"] = new Category([], "Cost");
     });
   }
   drop(event: CdkDragDrop<string[]>) {
@@ -43,7 +49,16 @@ export class AppComponent implements OnInit {
         event.container.data,
         event.previousIndex,
         event.currentIndex);
-    }
+        console.log(event.previousContainer.data.length);
+        console.log(event.container.data.length);
+        console.log(event.previousIndex);
+        console.log(event.currentIndex);
+        console.log(this.category);
+        console.log(this.selectedCategory);
+        let category = this.categories[this.selectedCategory];
+        category.records = this.category;
+        console.log(category);       
+      }
   }
   onChange(selectedCategory: string) {
     console.log(selectedCategory);
@@ -68,5 +83,15 @@ export class AppComponent implements OnInit {
     let names = Object.getOwnPropertyNames(this.categories);
     return names;
   }
-
+  getCategories() {
+    return this.categories;
+  }
+  save() {
+    for (var property in this.categories) {
+      if (this.categories.hasOwnProperty(property)) {
+          let cont = this.categories[property].records;
+          console.log(property+","+cont.length);
+      }
+    }
+  }
 }

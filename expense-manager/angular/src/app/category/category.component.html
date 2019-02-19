@@ -2,8 +2,9 @@
   {{name}}
 </p>
 
-<table cdkDropList (cdkDropListDropped)="drop($event)" >
-  <thead>
+<table cdkDropList #categoryList="cdkDropList" [cdkDropListData]="getRecords()" [cdkDropListConnectedTo]="[recordList]"
+(cdkDropListDropped)="drop($event)">
+<thead>
     <tr>
       <th scope="col">Date</th>
       <th scope="col">Value</th>

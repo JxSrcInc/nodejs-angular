@@ -4,7 +4,8 @@ var RecordService = require('../service/record-service.js');
 var service = new RecordService();
 /* GET transaction listing. */
 router.get('/', function(req, res, next) {
-  res.json(service.getData());
+  const file = req.param("src");
+  res.json(service.getData(file));
 });
 
 module.exports = router;

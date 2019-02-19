@@ -18,7 +18,7 @@ export class NodejsService {
     */
   }
 
-  getSrc():Observable<Record[]> {
-    return this.http.get<Record[]>('/api/v1/transactions');
+  getSrc(src: string):Observable<Record[]> {
+    return this.http.get<Record[]>('/api/v1/transactions?src='+src);
   }
 }
