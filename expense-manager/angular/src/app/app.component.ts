@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { NodejsService } from './nodejs.service';
-import { Record } from './record';
+import { Record } from './model/record';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
-import { Category } from './category';
+import { Category } from './model/category';
 import { DefaultConfig } from './default-config';
 @Component({
   selector: 'app-root',
@@ -11,11 +11,11 @@ import { DefaultConfig } from './default-config';
 })
 export class AppComponent implements OnInit {
 
-  records: Record[];
-  category: Record[];
+  category: Category;
   categories = {};
   categoryNames: string[];
   selectedCategory: string;
+  transactions: Category;
 
   work: boolean = true;
   config: boolean = false;
@@ -30,9 +30,12 @@ export class AppComponent implements OnInit {
     const defaultConfig  = new DefaultConfig();
     this.src = defaultConfig.src;
     this.json = defaultConfig.json;
-    this.category = [];
     this.categoryNames = defaultConfig.categories;
     this.selectedCategory = this.categoryNames[0];
+    // category must initialize otherwise html will have error
+    this.category = new Category([], this.selectedCategory);
+    // transactions must initialize otherwise html will have error
+    this.transactions = new Category([], "transactions");
     for(let i in this.categoryNames) {
       const name = this.categoryNames[i];
       this.categories[name] =  new Category([], name);
@@ -40,38 +43,33 @@ export class AppComponent implements OnInit {
   }
   loadSrc() {
     this.service.getSrc(this.src).subscribe(records => {
-      this.records = records['records'];
+      this.transactions.records = records['records'];
     });
   }
   drop(event: CdkDragDrop<string[]>) {
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     } else {
-      transferArrayItem(event.previousContainer.data,
-        event.container.data,
+      // event.previousContainer.data and event.container.data are Category
+      // method requires array 
+      // so args type is Category.records
+      transferArrayItem(event.previousContainer.data['records'],
+        event.container.data['records'],
         event.previousIndex,
         event.currentIndex);
-        console.log(event.previousContainer.data.length);
-        console.log(event.container.data.length);
-        console.log(event.previousIndex);
-        console.log(event.currentIndex);
         console.log(this.category);
         console.log(this.selectedCategory);
         let category = this.categories[this.selectedCategory];
-        category.records = this.category;
+        category.records = this.category.records;
         console.log(category);       
       }
   }
   onChange(selectedCategory: string) {
-    console.log(selectedCategory);
-    console.log(this.category);
     // update modified category
-    this.categories[this.selectedCategory].records = this.category;
+    this.categories[this.selectedCategory] = this.category;
     // get new category;
-    this.category = this.categories[selectedCategory].records;
+    this.category = this.categories[selectedCategory];
     this.selectedCategory = selectedCategory;
-    console.log(this.selectedCategory);
-    console.log(this.category);
   }
   setConfig() {
     this.config = true;
@@ -99,9 +97,12 @@ export class AppComponent implements OnInit {
       this.categories = JSON.parse(categories);
       console.log(this.categories);
     // update selected category
-    this.category = this.categories[this.selectedCategory].records;
+    this.category = this.categories[this.selectedCategory];
     // update categoryNames
     this.categoryNames = Object.getOwnPropertyNames(categories);
     });
+  }
+  isSelected(category: string) {
+    return this.selectedCategory == category;
   }
 }

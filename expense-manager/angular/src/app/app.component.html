@@ -19,15 +19,11 @@
           </div>
         </div>
         <div class=row>
-
           <select (change)="onChange($event.target.value)" class="form-control">
-
-            <option *ngFor="let category of getCategoryNames()" value={{category}}>
-
+            <option *ngFor="let category of getCategoryNames()" value={{category}}
+            [selected]="isSelected(category)">
               {{category}}
-
             </option>
-
           </select>
         </div>
         <div class=row>
@@ -41,7 +37,7 @@
                 <th scope="col">Note</th>
               </tr>
             </thead>
-            <tbody *ngFor="let record of category" cdkDrag>
+            <tbody *ngFor="let record of category.records" cdkDrag>
               <tr>
                 <td>{{record.date}}</td>
                 <td>{{record.val}}</td>
@@ -57,7 +53,7 @@
         <input type="text" [(ngModel)]="src" />
         <button (click)="loadSrc()">Load</button>
 
-        <table cdkDropList #recordList="cdkDropList" [cdkDropListData]="records" [cdkDropListConnectedTo]="[categoryList]"
+        <table cdkDropList #recordList="cdkDropList" [cdkDropListData]="transactions" [cdkDropListConnectedTo]="[categoryList]"
           (cdkDropListDropped)="drop($event)">
           <thead>
             <tr>
@@ -67,7 +63,7 @@
               <th scope="col">Note</th>
             </tr>
           </thead>
-          <tbody *ngFor="let record of records" cdkDrag>
+          <tbody *ngFor="let record of transactions.records" cdkDrag>
             <tr>
               <td>{{record.date}}</td>
               <td>{{record.val}}</td>

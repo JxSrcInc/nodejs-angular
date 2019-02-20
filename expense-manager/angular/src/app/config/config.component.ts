@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, AfterContentInit } from '@angular/core';
-import { Category } from '../category';
+import { Category } from '../model/category';
 @Component({
   selector: 'app-config',
   templateUrl: './config.component.html',
