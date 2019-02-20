@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NodejsService } from './nodejs.service';
-import { Record } from './model/record';
+import { Util } from './model/util';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { Category } from './model/category';
 import { DefaultConfig } from './default-config';
@@ -16,18 +16,17 @@ export class AppComponent implements OnInit {
   categoryNames: string[];
   selectedCategory: string;
   transactions: Category;
-
   work: boolean = true;
   config: boolean = false;
 
   src: string;
   json: string;
 
-  constructor(private service: NodejsService) { 
+  constructor(private service: NodejsService) {
   }
 
   ngOnInit() {
-    const defaultConfig  = new DefaultConfig();
+    const defaultConfig = new DefaultConfig();
     this.src = defaultConfig.src;
     this.json = defaultConfig.json;
     this.categoryNames = defaultConfig.categories;
@@ -36,14 +35,16 @@ export class AppComponent implements OnInit {
     this.category = new Category([], this.selectedCategory);
     // transactions must initialize otherwise html will have error
     this.transactions = new Category([], "transactions");
-    for(let i in this.categoryNames) {
+    for (let i in this.categoryNames) {
       const name = this.categoryNames[i];
-      this.categories[name] =  new Category([], name);
+      this.categories[name] = new Category([], name);
     }
   }
   loadSrc() {
     this.service.getSrc(this.src).subscribe(records => {
       this.transactions.records = records['records'];
+      Util.merge(this.categories, this.transactions);
+      console.log(this.transactions);
     });
   }
   drop(event: CdkDragDrop<string[]>) {
@@ -57,12 +58,12 @@ export class AppComponent implements OnInit {
         event.container.data['records'],
         event.previousIndex,
         event.currentIndex);
-        console.log(this.category);
-        console.log(this.selectedCategory);
-        let category = this.categories[this.selectedCategory];
-        category.records = this.category.records;
-        console.log(category);       
-      }
+      console.log(this.category);
+      console.log(this.selectedCategory);
+      let category = this.categories[this.selectedCategory];
+      category.records = this.category.records;
+      console.log(category);
+    }
   }
   onChange(selectedCategory: string) {
     // update modified category
@@ -89,17 +90,18 @@ export class AppComponent implements OnInit {
   save() {
     console.log(JSON.stringify(this.categories));
     this.service.postJson(this.json, JSON.stringify(this.categories)).subscribe(status => {
-      console.log(this.json+' post: '+status);
+      console.log(this.json + ' post: ' + status);
     });
   }
   loadJson() {
     this.service.getJson(this.json).subscribe(categories => {
       this.categories = JSON.parse(categories);
       console.log(this.categories);
-    // update selected category
-    this.category = this.categories[this.selectedCategory];
-    // update categoryNames
-    this.categoryNames = Object.getOwnPropertyNames(categories);
+      // update selected category
+      this.category = this.categories[this.selectedCategory];
+      // update categoryNames
+      this.categoryNames = Object.getOwnPropertyNames(categories);
+      Util.merge(this.categories, this.transactions);
     });
   }
   isSelected(category: string) {
