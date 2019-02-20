@@ -1,0 +1,1 @@
+{"Income":{"records":[{"date":"2018-1-2","val":-234,"merchant":"airline","note":"CA"}],"name":"Income"},"Cost":{"records":[{"date":"2018-1-1","val":-190.84,"merchant":"Inn","note":"CA"}],"name":"Cost"},"Test":{"records":[{"date":"2018-1-2","val":-234,"merchant":"airline","note":"CA"},{"date":"2018-11-30","val":601.6,"merchant":"Tech","note":""}],"name":"Test"}}

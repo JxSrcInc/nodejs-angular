@@ -21,6 +21,7 @@ export class AppComponent implements OnInit {
   config: boolean = false;
 
   src: string;
+  json: string;
 
   constructor(private service: NodejsService) { 
   }
@@ -28,6 +29,7 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     const defaultConfig  = new DefaultConfig();
     this.src = defaultConfig.src;
+    this.json = defaultConfig.json;
     this.category = [];
     this.categoryNames = defaultConfig.categories;
     this.selectedCategory = this.categoryNames[0];
@@ -87,11 +89,19 @@ export class AppComponent implements OnInit {
     return this.categories;
   }
   save() {
-    for (var property in this.categories) {
-      if (this.categories.hasOwnProperty(property)) {
-          let cont = this.categories[property].records;
-          console.log(property+","+cont.length);
-      }
-    }
+    console.log(JSON.stringify(this.categories));
+    this.service.postJson(this.json, JSON.stringify(this.categories)).subscribe(status => {
+      console.log(this.json+' post: '+status);
+    });
+  }
+  loadJson() {
+    this.service.getJson(this.json).subscribe(categories => {
+      this.categories = JSON.parse(categories);
+      console.log(this.categories);
+    // update selected category
+    this.category = this.categories[this.selectedCategory].records;
+    // update categoryNames
+    this.categoryNames = Object.getOwnPropertyNames(categories);
+    });
   }
 }

@@ -1,15 +1,23 @@
 <button (click)="setConfig()">Config</button>
 <button (click)="setWork()">Work</button>
-<button (click)="loadSrc()">Load</button>
-<button (click)="save()">Save</button>
+
 <div *ngIf="config">
-    <app-config [(categories)]="categories" ></app-config>
+  <app-config [(categories)]="categories"></app-config>
 </div>
 <div *ngIf="work">
   <div class="container-fluid">
     <div class="row">
       <!-- Left Panel-->
       <div class="col-sm-6">
+        <div class=row>
+          <div>
+            <input type="text" [(ngModel)]="json" />
+          </div>
+          <div>
+            <button (click)="save()">Save</button>
+            <button (click)="loadJson()">Load</button>
+          </div>
+        </div>
         <div class=row>
 
           <select (change)="onChange($event.target.value)" class="form-control">
@@ -46,7 +54,9 @@
       </div>
       <!-- Right Panel -->
       <div class="col-sm-6">
-        <input type="text" class="form-control" [(ngModel)]="src"/>
+        <input type="text" [(ngModel)]="src" />
+        <button (click)="loadSrc()">Load</button>
+
         <table cdkDropList #recordList="cdkDropList" [cdkDropListData]="records" [cdkDropListConnectedTo]="[categoryList]"
           (cdkDropListDropped)="drop($event)">
           <thead>

@@ -1,24 +1,31 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Record }  from "./record";
 import { Observable} from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
 export class NodejsService {
+  httpOptions = {
+    headers: new HttpHeaders({
+      'Content-Type':  'application/json'
+    })
+  };
+ 
   constructor(private http: HttpClient) { 
-    /*
-    const name = '/api/v1/transactions';
-  	this.http.get(name).subscribe((data:any) => {
-      this.src = new Category(data.records, name);
-      console.log(this.src);
-    }, error => {
-        console.log("There was an error generating the proper GUID on the server", error);
-    });
-    */
   }
 
   getSrc(src: string):Observable<Record[]> {
     return this.http.get<Record[]>('/api/v1/transactions?src='+src);
   }
+
+  getJson(src: string):Observable<string> {
+    return this.http.get<string>('/api/v1/categories?json='+src);
+  }
+
+  postJson(file: string, content: string):Observable<any> {
+    return this.http.post('/api/v1/categories?json='+file, content, this.httpOptions);
+  }
+ 
+
 }
