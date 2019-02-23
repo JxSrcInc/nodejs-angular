@@ -3,7 +3,7 @@ import { Category } from '../model/category';
 @Component({
   selector: 'app-config',
   templateUrl: './config.component.html',
-  styleUrls: ['./config.component.css']
+  styleUrls: ['./config.component.css','../app.component.css']
 })
 export class ConfigComponent implements OnInit, AfterContentInit{
 

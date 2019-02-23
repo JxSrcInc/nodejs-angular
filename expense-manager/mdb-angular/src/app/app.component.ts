@@ -4,6 +4,9 @@ import { Util } from './model/util';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { Category } from './model/category';
 import { DefaultConfig } from './default-config';
+import { Record } from './model/record';
+import * as $ from 'jquery';
+import 'datatables.net';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -16,13 +19,28 @@ export class AppComponent implements OnInit {
   categoryNames: string[];
   selectedCategory: string;
   transactions: Category;
+
   work: boolean = true;
   config: boolean = false;
-
+  summary: boolean = false;
   src: string;
   json: string;
 
+  public tableWidget: any;
+
   constructor(private service: NodejsService) {
+  }
+
+  ngAfterViewInit() {
+    this.initDatatable()
+  }
+
+  private initDatatable(): void {
+    let exampleId: any = $('#transaction');
+    this.tableWidget = exampleId.DataTable({
+      select: true
+    });
+    console.log(this.tableWidget);
   }
 
   ngOnInit() {
@@ -52,7 +70,7 @@ export class AppComponent implements OnInit {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     } else {
       // event.previousContainer.data and event.container.data are Category
-      // method requires array 
+      // the first two args of the moveItemInArray method must be array type
       // so args type is Category.records
       transferArrayItem(event.previousContainer.data['records'],
         event.container.data['records'],
@@ -66,6 +84,8 @@ export class AppComponent implements OnInit {
     }
   }
   onChange(selectedCategory: string) {
+    this.selectedCategory == selectedCategory;
+
     // update modified category
     this.categories[this.selectedCategory] = this.category;
     // get new category;
@@ -75,11 +95,19 @@ export class AppComponent implements OnInit {
   setConfig() {
     this.config = true;
     this.work = false;
+    this.summary = false;
   }
   setWork() {
     this.config = false;
     this.work = true;
+    this.summary = false;
   }
+  setSummary() {
+    this.summary = true;
+    this.config = false;
+    this.work = false;
+  }
+
   getCategoryNames() {
     let names = Object.getOwnPropertyNames(this.categories);
     return names;
@@ -101,10 +129,35 @@ export class AppComponent implements OnInit {
       this.category = this.categories[this.selectedCategory];
       // update categoryNames
       this.categoryNames = Object.getOwnPropertyNames(categories);
+      console.log(this.categories)
+      console.log(this.category);
       Util.merge(this.categories, this.transactions);
     });
   }
   isSelected(category: string) {
+    console.log(category);
     return this.selectedCategory == category;
   }
+  sortTransaction(col: string) {
+    this.sort(this.transactions.records, col);
+  }
+  sort(records: Record[], col: string) {
+    const first = records[0];
+    const last = records[records.length-1];
+    if(first[col] < last[col]) {
+      records.sort((a, b) => (a[col] < b[col]) ? 1 : -1);
+    } else {
+      records.sort((a, b) => (a[col] > b[col]) ? 1 : -1);
+    }
+  }
+  sortCategory(col: string) {
+    this.sort(this.category.records, col);
+  }
+  categorySum() {
+    return Util.getSum(this.category.records);
+  }
+  transactionsSum() {
+    return Util.getSum(this.transactions.records);
+  }s
+
 }

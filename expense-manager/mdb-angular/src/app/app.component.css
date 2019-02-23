@@ -1,6 +1,20 @@
 .positive {
-    background-color: green;
+    color: green;
 }
 .negative {
-    background-color: red;
+    color: red;
+}
+
+.a:active {
+    background-color: blue;
+
+}
+.a:hover {
+    background-color: blue;
+
+}
+.title {
+    text-align: center;
+    background-color: blue;
+    color: white;
 }

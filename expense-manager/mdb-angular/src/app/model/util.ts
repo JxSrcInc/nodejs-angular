@@ -2,6 +2,18 @@ import { Record } from './record';
 import { Category } from './category';
 export class Util {
 
+    static getSum(records: Record[]) {
+        let sum = 0;
+        for(let i in records) {
+            sum += records[i].val;
+        }
+        return sum;
+    }
+
+    static getCategorySum(category: Category) {
+        return this.getSum(category.records);
+    }
+
     static equalRecord(r1: Record, r2: Record) {
         if(r1.date != r2.date) {
             return false;

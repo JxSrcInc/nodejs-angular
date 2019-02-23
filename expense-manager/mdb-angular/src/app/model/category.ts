@@ -1,7 +1,8 @@
+import {Record} from './record';
 export class Category {
-    records: any ;
+    records: Record[] ;
     name: string;
-    constructor(records: any, name: string) {
+    constructor(records: Record[], name: string) {
         this.records = records;
         this.name = name;
     }

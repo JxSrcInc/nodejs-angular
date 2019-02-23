@@ -8,11 +8,13 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { ConfigComponent } from './config/config.component';
 import { FormsModule } from '@angular/forms';
+import { SummaryComponent } from './summary/summary.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    ConfigComponent
+    ConfigComponent,
+    SummaryComponent
   ],
   imports: [
     BrowserModule,
