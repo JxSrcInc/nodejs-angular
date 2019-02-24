@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Category } from '../model/category';
+import { Util } from '../model/util';
 
 @Component({
   selector: 'app-summary',
@@ -20,8 +20,8 @@ export class SummaryComponent implements OnInit {
     for (let property in this.categories) {
       if (this.categories.hasOwnProperty(property)) {
         console.log(this.categories[property])
-          let count = this.categories[property].getCount();
-          let sum = this.categories[property].getSum();
+          let count = this.categories[property].records.length;
+          let sum = Util.getSum(this.categories[property].records);
           info.push({'name':property, 'sum':sum, 'count': count});
       }
     }

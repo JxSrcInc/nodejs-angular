@@ -1,37 +1,37 @@
-# MdbAngularFree
+# Create MDBootstrap Angular project
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 6.0.0-rc.5.
+1. Goto [https://mdbootstrap.com/](https://mdbootstrap.com/).
+2. Select MDBootstrap Angular and download. The file name may look like mdb-angular-free-x.x.x.zip.
+3. Extract the download file to a folder.
+4. Goto the folder and check it is a standard Angular project folder.
+5. Install the Angular project by npm
+> npm install 
+6. Check anguler-bootstrap-md exists in node-modules folder.
 
-## Development server
+# Using MDBootstrap DataTable in Angular.
 
-Run `ng serve mdb-angular-free` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+1. Install other dependencies for Material Data Table(_--save_ is optional. **ngcli ^7.0.0** automatically update dependencies section in package.json by default. But _--save-dev_ is required to update devDependencies section in package.json.)
+```
+npm install bootstrap --save
+npm install popper.js --save
+npm install datatables.net --save
+npm install datatables.net-bs --save
+npm install datatables.net-select --save
+npm install datatables.net-select-bs --save
+npm install jquery --save
+npm install @types/jquery --save-dev
+```
+2. Update _angular.json_. See [https://www.beyondjava.net/how-to-use-a-javascript-datatable-in-an-angular-application](https://www.beyondjava.net/how-to-use-a-javascript-datatable-in-an-angular-application) for more information.
 
-## Demo application
+## NOTE: 
+1. The above instruction is incomplete. Just as a reference. Need more work to DataTable working in Angular.
+2. Install mdbootstrap dependencies using npm to standard Angular project that created by _ng new project_ does not work.
+3. The mdbootstrap DataTable works when all dependencies are added directly in index.html,  which skips Angular typescript process. In this case, no dependency installation in section 1 is needed. All DataTable features apply to static table defined in html. However, for dynamical table defined in html, for example, by using *ngFor, table view is correct, but no features, like pagination or sort, work.
 
-Run `ng serve mdb-demo` for a demo application build with MDB Angular Pro components.
+# Angular Drag and Drop
 
-## Code scaffolding
-
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
-
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
-
-## Remove demo application
-
-Type one of the below commands to remove demo application from this project:
-* npm run remove-demo-unix to remove demo application on UNIX based systems,
-* npm run remove-demo-windows to remove demo application on Windows systems.
+1. Install @angular/material
+> npm install @anguler/material
+2. Check @angular/cdk/drag-drop exists in @angular/cdk.
+2. Install @angular/cdk if required version does not exist.
+> npm install @angular/cdk
