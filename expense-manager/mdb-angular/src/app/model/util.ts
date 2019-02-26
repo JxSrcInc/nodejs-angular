@@ -5,7 +5,9 @@ export class Util {
     static getSum(records: Record[]) {
         let sum = 0;
         for(let i in records) {
-            sum += records[i].val;
+            if(records[i].val) {
+                sum += records[i].val;
+            }
         }
         return sum;
     }
@@ -39,7 +41,8 @@ export class Util {
         let names = Object.getOwnPropertyNames(categories);
         let len = transactions.records.length;
         while(len--) {
-            for(let i=0; i<names.length; i++) {
+            let removed = false;
+            for(let i=0; i<names.length && !removed; i++) {
                 const name = names[i];
                 if(categories[name].records == undefined) {
                     return;
@@ -48,12 +51,39 @@ export class Util {
                 for(let r in cRec) {
                     if(this.equalRecord(cRec[r],tRec[len])) {
                         transactions.records.splice(len, 1);
-                        ;
+                        removed = true;
+                        break;
                     }
                 }
             }
         }
         return transactions;
     }
-    
+    static transferRecord(records: Record[]) {
+        for(let i in records) {
+            let record = records[i];
+            /*
+            let arr = record.date.split("-");
+            if(arr[1].length == 1) {
+                arr[1] = '0'+arr[1];
+            }
+            if(arr[2].length == 1) {
+                arr[2] = '0'+arr[2];
+            }
+            record.date = arr[0]+'-'+arr[1]+'-'+arr[2];
+            */
+           record.date = this.transferDate(record.date);
+        }
+        return records;
+    }
+    static transferDate(date: string) {
+        let arr = date.split("-");
+        if(arr[1].length == 1) {
+            arr[1] = '0'+arr[1];
+        }
+        if(arr[2].length == 1) {
+            arr[2] = '0'+arr[2];
+        }
+        return arr[0]+'-'+arr[1]+'-'+arr[2];
+    }
 }

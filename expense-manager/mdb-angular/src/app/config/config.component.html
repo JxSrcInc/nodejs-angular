@@ -6,11 +6,15 @@
     <!-- Left Panel-->
     <div class="col-sm-3">
       <div *ngFor="let info of getInfo()" class="list-group">
-        <li class="list-group-item d-flex justify-content-between align-items-center" id="{{info.name}}" (click)="onClick($event)">
+        <li *ngIf="info.name!=selectedCategory" class="list-group-item d-flex justify-content-between align-items-center" id="{{info.name}}" (click)="onClick($event)">
             {{info.name}}
             <span class="badge badge-primary badge-pill">{{info.count}}</span>
           </li>
-      </div>
+          <li *ngIf="info.name==selectedCategory" class="active list-group-item d-flex justify-content-between align-items-center" id="{{info.name}}">
+              {{info.name}}
+              <span class="badge badge-primary badge-pill">{{info.count}}</span>
+            </li>
+        </div>
 
     </div>
     <div class="col-sm-1"></div>

@@ -1,8 +1,9 @@
 <div class="container">
-  <button (click)="setWork()">Category</button>
-  <button (click)="setConfig()">Config</button>
-  <button (click)="setSummary()">Summary</button>
-
+  <span *ngFor="let page of pages">
+      <button *ngIf="page==selectedPage" class="active" (click)="setWork()">{{page}}</button>
+      <button *ngIf="page!=selectedPage" [(value)]="page" class="item" (click)="setPage($event)">{{page}}</button>
+    
+  </span>
   <div *ngIf="config">
     <app-config [(categories)]="categories"></app-config>
   </div>
@@ -15,9 +16,10 @@
     </div>
     <div class="row">
       <!-- Left Panel-->
-      <div class="col-sm-2">
-        <div class="list-group" *ngFor="let category of getCategoryNames()">
-          <a class="a" (click)="onChange(category)">{{category}}</a>
+      <div class="col-2">
+        <div class="list-group" *ngFor="let category of getCategoryNames(); let i = index">
+          <button *ngIf="category!=selectedCategory" class="item" (click)="onCategoryChange(category)">{{category}}</button>
+          <button *ngIf="category==selectedCategory" class="active" (click)="onCategoryChange(category)">{{category}}</button>
           <!--
           <select (change)="onChange($event.target.value)" class="form-control">
               <option *ngFor="let category of getCategoryNames()" value={{category}}
@@ -29,20 +31,21 @@
         </div>
       </div>
       <!-- Middle Panel-->
-      <div class="col-sm-5">
-        <input type="text" [(ngModel)]="json" class="form-control" />
+      <div class="col-5">
+        <input disabled type="text" [(ngModel)]="json" class="form-control" />
         <button (click)="save()">Save</button>
         <button (click)="loadJson()">Load</button>
+        <button (click)="add()">Add</button>
         Count: {{category.records.length}}
         <label *ngIf="categorySum() != 0">Sum:
           <span *ngIf="categorySum()>0" class="positive">
             {{categorySum() | number: '1.2'}}
           </span>
           <span *ngIf="!(categorySum()>0)" class="negative">
-            {{-categorySum() | number: '1.2'}}
+            {{categorySum() | number: '1.2'}}
           </span>
         </label>
-        <table class="table table-striped table-sm table-hover" cdkDropList #categoryList="cdkDropList"
+        <table class="table-hover" cdkDropList #categoryList="cdkDropList"
           [cdkDropListData]="category" [cdkDropListConnectedTo]="[recordList]" (cdkDropListDropped)="drop($event)">
           <thead>
             <tr>
@@ -52,20 +55,20 @@
               <th scope="col" (click)="sortCategory('note')">Note</th>
             </tr>
           </thead>
-          <tbody *ngFor="let record of category.records" cdkDrag>
+          <tbody *ngFor="let record of category.records ; let i = index" cdkDrag>
             <tr>
-              <td>{{record.date}}</td>
-              <td *ngIf="record.val>0" class="positive">{{record.val}}</td>
-              <td *ngIf="!(record.val>0)" class="negative">{{-record.val}}</td>
-              <td>{{record.merchant}}</td>
-              <td>{{record.note}}</td>
+              <td><input class="date" type="text" [value]="record.date" (change)="onDataChange($event, 'date', i)"></td>
+              <td *ngIf="record.val>0"><input class="positive val align-right" type="text" (change)="onDataChange($event, 'val', i)" [value]="record.val  | number: '1.2'"></td>
+              <td *ngIf="!(record.val>0)"><input class="negative val align-right" type="text" (change)="onDataChange($event, 'val', i)" [value]="record.val  | number: '1.2'"></td>
+              <td><input class="date" type="text" [(ngModel)]="record.merchant"></td>
+              <td><input class="date" type="text" [(ngModel)]="record.note"></td>
             </tr>
           </tbody>
         </table>
       </div>
       <!-- Right Panel -->
-      <div class="col-sm-5">
-        <input type="text" [(ngModel)]="src" class="form-control" />
+      <div class="col-5">
+        <input type="text" [(ngModel)]="src" class="form-control" (change)="srcChange($event)"/>
         <button (click)="loadSrc()">Load</button>
         Count: {{transactions.records.length}}
         <label *ngIf="transactionsSum() != 0">Sum:
@@ -73,10 +76,10 @@
             {{transactionsSum() | number: '1.2'}}
           </span>
           <span *ngIf="!(transactionsSum()>0)" class="negative">
-            {{-transactionsSum() | number: '1.2'}}
+            {{transactionsSum() | number: '1.2'}}
           </span>
         </label>
-        <table id="transactions" class="table table-striped table-sm table-hover" cdkDropList #recordList="cdkDropList"
+        <table id="transactions" class="table-hover" cdkDropList #recordList="cdkDropList"
           [cdkDropListData]="transactions" [cdkDropListConnectedTo]="[categoryList]" (cdkDropListDropped)="drop($event)">
           <thead>
             <tr>
@@ -88,9 +91,9 @@
           </thead>
           <tbody *ngFor="let record of transactions.records" cdkDrag>
             <tr>
-              <td>{{record.date}}</td>
-              <td *ngIf="record.val>0" class="positive">{{record.val}}</td>
-              <td *ngIf="!(record.val>0)" class="negative">{{-record.val}}</td>
+              <td class="date">{{record.date}}</td>
+              <td *ngIf="record.val>0" class="positive val  align-right">{{record.val  | number: '1.2' }}</td>
+              <td *ngIf="!(record.val>0)" class="negative val align-right">{{record.val  | number: '1.2'}}</td>
               <td>{{record.merchant}}</td>
               <td>{{record.note}}</td>
             </tr>

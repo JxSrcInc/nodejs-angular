@@ -20,7 +20,7 @@ export class ConfigComponent implements OnInit, AfterContentInit{
   }
 
   ngAfterContentInit() {
-    console.log(this.categories['Income'].records)
+//    console.log(this.categories['Income'])
   }
   onKeyPress(event: any) {
     console.log(event.key);

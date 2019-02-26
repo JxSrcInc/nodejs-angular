@@ -1,6 +1,24 @@
 export class DefaultConfig {
-    src: string = './test.csv';
-//    src: string = 'C:/Users/JiangJxSrc/Documents/personal/JxSrc/transaction/2018/transaction.csv';
-    categories: string[] = ['Income', 'Cost'];
-    json: string = './test.json';
+        file: string = 'test';
+        dir: string = './test/';
+        srcDir: string = 'data/';
+        jsonDir: string = 'repository/';
+        categories: string[] = ['Receivable',
+                'Tax preparation',
+                'Computer service',
+                'Insurance',
+                'Office expanse',
+                'Postage',
+                'Telephone',
+                'Travel expense',
+                'Uniforms',
+                'Meals (100%)',
+                'Meals (50%)',
+                'Unemployment',
+                'HSA contribution',
+                'HSA fee',
+                'Property tax',
+                'Gift card'
+        ];
+
 }

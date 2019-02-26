@@ -5,16 +5,29 @@
     color: red;
 }
 
-.a:active {
-    background-color: blue;
-
+.active {
+    color: blue;
 }
-.a:hover {
-    background-color: blue;
 
-}
 .title {
     text-align: center;
     background-color: blue;
     color: white;
+}
+.item {
+    background-color: grey;
+    color: white;
+}
+.item:hover {
+    background-color: blue;
+    color: white
+}
+.date{
+    width: 80px;
+}
+.val{
+    width: 60px;
+}
+.align-right{
+    text-align: right;
 }

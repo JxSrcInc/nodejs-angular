@@ -22,8 +22,7 @@ import { SummaryComponent } from './summary/summary.component';
     HttpClientModule,
     BrowserAnimationsModule,
     DragDropModule,
-    FormsModule
-  ],
+    FormsModule  ],
   providers: [],
   bootstrap: [AppComponent]
 })
