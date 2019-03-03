@@ -1,6 +1,8 @@
 export class DefaultConfig {
-        file: string = 'test';
-        dir: string = './test/';
+        //file: string = 'test';
+        //dir: string = './test/';
+        dir: string = 'C:/Users/JiangJxSrc/Documents/personal/tax/2018/';
+        file: string = 'transaction';
         srcDir: string = 'data/';
         jsonDir: string = 'repository/';
         categories: string[] = ['Receivable',
