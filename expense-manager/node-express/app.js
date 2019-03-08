@@ -3,7 +3,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
  
-var users = require('./routes/users');
+var home = require('./routes/home');
 var transactions = require('./routes/transactions');
 var categories = require('./routes/categories');
 var app = express();
@@ -25,6 +25,6 @@ app.use(function(req, res, next) {
 //app.use('/api/v1/users', users);
 app.use('/api/v1/transactions',transactions);
 app.use('/api/v1/categories',categories);
- 
+app.use('/api/v1/home',home);
 module.exports = app;
  

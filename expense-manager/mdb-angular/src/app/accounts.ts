@@ -1,7 +1,7 @@
 export class Accounts {
         accounts = {};
         constructor() {
-                this.accounts['transaction'] = ['Receivable',
+                this.accounts['jxsrc'] = ['Receivable',
                 'Tax preparation',
                 'Computer service',
                 'Insurance',

@@ -1,30 +1,38 @@
 const Util = require('./util.js');
-
-class FileTransferManager {
-    constructor() {
-        this.root = 'C:/Users/JiangJxSrc/Documents/personal/tax/2018';
-    }
-    get(filename) {
-        console.log("get " + filename);
-        if (filename.includes('transaction')) {
-            return new FileTransfer_Transaction(this.root + '/data/' + filename);
-        } else
-        if (filename.includes('13300')) {
-            return new FileTransfer_Rental(this.root + '/data/' + filename);
-        } else
-        if (filename.includes('9899')) {
-            return new FileTransfer_Rental(this.root + '/data/' + filename, 2);
-        } else {
-            return null;
+const fs = require('fs');
+class AccountManager {
+    constructor(rootDir) {
+        this.rootDir = rootDir;
+        this.map = {
+            '9899': new AccountRental(2),
+            '13300': new AccountRental(),
+            jxsrc: new AccountJxsrc()
         }
     }
-    getRoot() {
-        return this.root;
+    get(filename) {
+        console.log(filename);
+        for(const key in this.map) {
+            if(filename.includes(key)) {
+                const account = this.map[key];
+                account.setFilename(this.rootDir+'/data/'+filename);
+                return account;
+            }
+        }
+        return null;
+    }
+    getRootDir() {
+        return this.rootDir;
+    }
+    getMap() {
+        return this.map;
+    }
+    getSrcFiles() {
+        return fs.readdirSync(this.rootDir+'/data');
     }
 }
 
-class FileTransfer_Transaction {
-    constructor(filename) {
+class AccountJxsrc {
+    setFilename(filename) {
         this.filename = filename;
     }
     getFilename() {
@@ -47,12 +55,33 @@ class FileTransfer_Transaction {
         }
 
     }
+    getCategories() {
+        return  ['Receivable',
+        'Tax preparation',
+        'Computer service',
+        'Insurance',
+        'Office expanse',
+        'Postage',
+        'Telephone',
+        'Travel expense',
+        'Uniforms',
+        'Meals (100%)',
+        'Meals (50%)',
+        'Unemployment',
+        'HSA contribution',
+        'HSA fee',
+        'Property tax',
+        'Gift card'
+        ];
+    }
 }
 
-class FileTransfer_Rental {
-    constructor(filename, split = 1) {
-        this.filename = filename;
+class AccountRental {
+    constructor(split = 1) {
         this.split = split;
+    }
+    setFilename(filename) {
+        this.filename = filename;
     }
     getFilename() {
         return this.filename;
@@ -74,9 +103,14 @@ class FileTransfer_Rental {
         }
 
     }
+    getCategories() {
+        return  ['Receivable',
+        'Test'
+        ];
+    }
 }
 
-module.exports = FileTransferManager;
+module.exports = AccountManager;
 /*
 module.exports = {
     FileTransferManager: FileTransferManager,
