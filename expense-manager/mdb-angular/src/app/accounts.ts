@@ -1,11 +1,7 @@
-export class DefaultConfig {
-        //file: string = 'test';
-        //dir: string = './test/';
-        dir: string = 'C:/Users/JiangJxSrc/Documents/personal/tax/2018/';
-        file: string = 'transaction';
-        srcDir: string = 'data/';
-        jsonDir: string = 'repository/';
-        categories: string[] = ['Receivable',
+export class Accounts {
+        accounts = {};
+        constructor() {
+                this.accounts['transaction'] = ['Receivable',
                 'Tax preparation',
                 'Computer service',
                 'Insurance',
@@ -21,6 +17,8 @@ export class DefaultConfig {
                 'HSA fee',
                 'Property tax',
                 'Gift card'
-        ];
+                ];
+                this.accounts['9899'] = ['test'];
+        }
 
 }

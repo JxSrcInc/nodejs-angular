@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, AfterContentInit } from '@angular/core';
 import { Category } from '../model/category';
+import { Util } from '../model/util';
 @Component({
   selector: 'app-config',
   templateUrl: './config.component.html',
@@ -30,7 +31,7 @@ export class ConfigComponent implements OnInit, AfterContentInit{
   }
   change(value: string) {
     this.categories[value] = new Category([], value);
-    console.log(this.categories);
+    this.categories = Util.sortCategories(this.categories);
     this.childDataChange.emit(this.categories);
     this.addConfig = '';
   }

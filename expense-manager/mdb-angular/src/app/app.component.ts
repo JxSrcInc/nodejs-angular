@@ -3,7 +3,8 @@ import { NodejsService } from './nodejs.service';
 import { Util } from './model/util';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { Category } from './model/category';
-import { DefaultConfig } from './default-config';
+import { Accounts } from './accounts';
+import { Config } from './config';
 import { Record } from './model/record';
 import * as $ from 'jquery';
 import 'datatables.net';
@@ -21,14 +22,18 @@ export class AppComponent implements OnInit {
   categoryNames: string[];
   selectedCategory: string;
   transactions: Category;
+  selectRecordIndex: number = 0;
+  selectRecord: Record;
 
   work: boolean = true;
   config: boolean = false;
   summary: boolean = false;
   src: string;
-  srcDir: string;
+  srcErr: boolean = false;
   json: string;
-  jsonDir: string;
+
+  activeAccount: string;
+  accounts: Accounts;
 
   public tableWidget: any;
 
@@ -36,7 +41,7 @@ export class AppComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-    this.initDatatable()
+    this.initDatatable();
   }
 
   private initDatatable(): void {
@@ -48,14 +53,16 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.pages = ["Category","Config","Summary"];
+    this.pages = ["Category", "Config", "Summary"];
     this.selectedPage = "Category";
-    const cfg = new DefaultConfig();
-    this.srcDir = cfg.dir+cfg.srcDir;
-    this.src = cfg.file+".csv";
-    this.jsonDir = cfg.dir+cfg.jsonDir;
-    this.json = cfg.file+".json";
-    this.categoryNames = cfg.categories;
+    this.accounts  = new Accounts();
+    console.log(this.accounts);
+    const cfg = new Config();
+//    this.setSelectedCategory(cfg.activeAccount);
+    this.activeAccount = cfg.activeAccount;
+    this.src = this.activeAccount + ".csv";
+    this.json = this.activeAccount + ".json";
+    this.categoryNames = this.accounts.accounts[this.activeAccount];
     this.selectedCategory = this.categoryNames[0];
     // category must initialize otherwise html will have error
     this.category = new Category([], this.selectedCategory);
@@ -66,16 +73,22 @@ export class AppComponent implements OnInit {
       this.categories[name] = new Category([], name);
     }
   }
+
   loadSrc() {
-    this.service.getSrc(this.srcDir+this.src).subscribe(records => {
+    this.srcErr = false;
+    this.service.getSrc(this.src).subscribe(records => {
       this.transactions.records = Util.transferRecord(records['records']);
       Util.merge(this.categories, this.transactions);
       console.log(this.transactions);
+    },
+    err => {
+      console.log(err);
+      this.srcErr =  true;
     });
   }
   drop(event: CdkDragDrop<string[]>) {
     if (event.previousContainer === event.container) {
-//      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+      //      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     } else {
       // event.previousContainer.data and event.container.data are Category
       // the first two args of the moveItemInArray method must be array type
@@ -97,18 +110,19 @@ export class AppComponent implements OnInit {
     // get new category;
     this.category = this.categories[selectedCategory];
     this.selectedCategory = selectedCategory;
+    this.selectRecordIndex = 0;
   }
   setPage(event: any) {
     let page = event.target.value;
     this.selectedPage = page;
-    if(page == "Config") {
+    if (page == "Config") {
       this.setConfig();
-    } else 
-    if(page == "Summary") {
-      this.setSummary();
-    } else {
-      this.setWork();
-    }
+    } else
+      if (page == "Summary") {
+        this.setSummary();
+      } else {
+        this.setWork();
+      }
   }
   setConfig() {
     this.config = true;
@@ -134,21 +148,33 @@ export class AppComponent implements OnInit {
     return this.categories;
   }
   save() {
-    const json = this.jsonDir+this.json;
+    const json = this.json;
     if (window.confirm("Save data to " + json)) {
       this.service.postJson(json, JSON.stringify(this.categories)).subscribe(status => {
         console.log(json + ' post: ' + status);
       });
     }
   }
+  /*
+  * It will replace existing categories with loaded file.
+  */
   loadJson() {
-    this.service.getJson(this.jsonDir+this.json).subscribe(categories => {
-      this.categories = JSON.parse(categories);
-      for(let i in this.categories) {
+    this.service.getJson(this.json).subscribe(categories => {
+      // replace this.categories with loaded file
+      this.categories = Util.sortCategories(JSON.parse(categories));
+      for (let i in this.categories) {
         let category = this.categories[i];
         category.records = Util.transferRecord(category.records);
       }
       // update selected category
+      if(!this.categories[this.selectedCategory]) {
+        // if selectedCategory is not in updated categories
+        let obj = this.categories;
+        const firstCategory = obj[Object.keys(obj)[0]].name;
+        console.log(firstCategory);
+        // replace category name list with 
+        this.selectedCategory = firstCategory;
+      }
       this.category = this.categories[this.selectedCategory];
       // update categoryNames
       this.categoryNames = Object.getOwnPropertyNames(categories);
@@ -158,51 +184,61 @@ export class AppComponent implements OnInit {
   isSelected(category: string) {
     return this.selectedCategory == category;
   }
+  // Right panel sort
   sortTransaction(col: string) {
-    this.sort(this.transactions.records, col);
+    Util.sort(this.transactions.records, col);
   }
-  sort(records: Record[], col: string) {
-    const first = records[0];
-    const last = records[records.length - 1];
-    if (first[col] < last[col]) {
-      records.sort((a, b) => (a[col] < b[col]) ? 1 : -1);
-    } else {
-      records.sort((a, b) => (a[col] > b[col]) ? 1 : -1);
-    }
-  }
+  // Middle panel sort
   sortCategory(col: string) {
-    this.sort(this.category.records, col);
+    Util.sort(this.category.records, col);
   }
+
   categorySum() {
     return Util.getSum(this.category.records);
   }
   transactionsSum() {
     return Util.getSum(this.transactions.records);
-  } 
+  }
   srcChange(event) {
-    this.json = this.src.split(".")[0]+".json";
+    this.json = this.src.split(".")[0] + ".json";
   }
   add() {
-    this.category.records.splice(0,0,new Record());
+    if (this.selectRecord) {
+      let record = new Record();
+      record.date = this.selectRecord.date;
+      record.val = this.selectRecord.val;
+      record.merchant = this.selectRecord.merchant;
+      record.note = this.selectRecord.note;
+      this.category.records.splice(0, 0, record);
+    } else {
+      this.category.records.splice(0, 0, new Record());
+    }
   }
   onDataChange(value: any, col: string, index: number) {
     let record = this.category.records[index];
-    if(col == 'date') {
+    if (col == 'date') {
       let arr = value.target.value.split("/");
-      if(arr.length == 3) {
-        record.date = arr[2]+'-'+arr[0]+'-'+arr[1];
+      if (arr.length == 3) {
+        record.date = arr[2] + '-' + arr[0] + '-' + arr[1];
+      } else {
+        record.date = value.target.value;
       }
       record.date = Util.transferDate(record.date);
     } else
-    if(col == 'val') {
-      record.val = parseFloat(value.target.value.replace(',',''));
-      console.log(record);
-    } else
-    if(col == 'merchange') {
-      record.merchant = value;
-    } else {
-      record.note = value;
-    }
+      if (col == 'val') {
+        record.val = parseFloat(value.target.value.replace(',', ''));
+        console.log(record);
+      } else
+        if (col == 'merchange') {
+          record.merchant = value;
+        } else {
+          record.note = value;
+        }
   }
-
+  onRowClick(i: number) {
+    this.selectRecordIndex = i;
+    this.selectRecord = this.category.records[i];
+    console.log(i);
+    console.log(this.selectRecord);
+  }
 }

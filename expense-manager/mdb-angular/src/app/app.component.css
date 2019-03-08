@@ -4,7 +4,9 @@
 .negative {
     color: red;
 }
-
+.fileErr {
+    color: red;
+}
 .active {
     color: blue;
 }

@@ -3,9 +3,15 @@ var router = express.Router();
 var RecordService = require('../service/record-service.js');
 var service = new RecordService();
 /* GET transaction listing. */
-router.get('/', function(req, res, next) {
+router.get('/', async function(req, res, next) {
   const file = req.param("src");
-  res.json(service.getData(file));
+  try {
+    const data = await service.getData(file);
+    res.json(data);
+  } catch(err) {
+    res.status(404);
+    res.json(err);
+  }
 });
 
 module.exports = router;
