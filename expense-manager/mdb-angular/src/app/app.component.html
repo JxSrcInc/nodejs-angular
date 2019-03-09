@@ -2,8 +2,10 @@
   <span *ngFor="let page of pages">
       <button *ngIf="page==selectedPage" class="active" (click)="setWork()">{{page}}</button>
       <button *ngIf="page!=selectedPage" [(value)]="page" class="item" (click)="setPage($event)">{{page}}</button>
-    
   </span>
+  <select *ngIf="!summary" (change)="selectAccount($event.target.value)" class="form-control">
+    <option (selected)="acct.account==activeAccount" *ngFor="let acct of accounts" value={{acct.account}}>{{acct.account}}</option>
+  </select>
   <div *ngIf="config">
     <app-config [(categories)]="categories"></app-config>
   </div>

@@ -26,6 +26,10 @@ export class NodejsService {
   postJson(file: string, content: string):Observable<any> {
     return this.http.post('/api/v1/categories?json='+file, content, this.httpOptions);
   }
+
+  getConfig(): Observable<any> {
+    return this.http.get<any>('/api/v1/home');
+  }
  
 
 }

@@ -19,7 +19,7 @@ export class AppComponent implements OnInit {
   selectedPage: string;
   category: Category;
   categories = {};
-  categoryNames: string[];
+  //  categoryNames: string[];
   selectedCategory: string;
   transactions: Category;
   selectRecordIndex: number = 0;
@@ -33,7 +33,9 @@ export class AppComponent implements OnInit {
   json: string;
 
   activeAccount: string;
-  accounts: Accounts;
+  accounts: [];
+  acctSrc: [];
+  homeDir: string;
 
   public tableWidget: any;
 
@@ -55,23 +57,67 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.pages = ["Category", "Config", "Summary"];
     this.selectedPage = "Category";
-    this.accounts  = new Accounts();
-    console.log(this.accounts);
     const cfg = new Config();
-//    this.setSelectedCategory(cfg.activeAccount);
     this.activeAccount = cfg.activeAccount;
-    this.src = this.activeAccount + ".csv";
-    this.json = this.activeAccount + ".json";
-    this.categoryNames = this.accounts.accounts[this.activeAccount];
-    this.selectedCategory = this.categoryNames[0];
-    // category must initialize otherwise html will have error
-    this.category = new Category([], this.selectedCategory);
-    // transactions must initialize otherwise html will have error
+    // transactions and category must initialize otherwise html will have error
     this.transactions = new Category([], "transactions");
-    for (let i in this.categoryNames) {
-      const name = this.categoryNames[i];
-      this.categories[name] = new Category([], name);
+    this.category = new Category([], 'not init.')
+    this.loadConfig();
+  }
+
+  selectAccount(account: string ) {
+    this.activeAccount = account;
+    this.updateAccount();
+  }
+  updateAccount() {
+    for (let i in this.accounts) {
+      const acct = this.accounts[i];
+      if (acct['account'] == this.activeAccount) {
+        // account id/name match
+        for (let k in this.acctSrc) {
+          // get src file name for account and
+          // setup this.src and this.json
+          var srcFile = String(this.acctSrc[k]);
+          if (srcFile.includes(acct['account'])) {
+            // src file name contains account id/name
+            this.src = srcFile;
+            const index = srcFile.lastIndexOf('.');
+            this.json = srcFile.substring(0, index) + '.json';
+            this.transactions = new Category([], "transactions");
+
+            break;
+//          } else {
+  //          this.src = '';
+    //        this.json = '';
+          }
+        }
+        // setup category
+        // clean categories
+        this.categories = {};
+        let categoryNames = Object.values(acct['categories']);
+        if (categoryNames.length > 0) {
+          this.selectedCategory = String(categoryNames[0]);
+          this.category = new Category([], this.selectedCategory);
+          for(let i in categoryNames) {
+            const name = String(categoryNames[i]);
+            this.categories[name] = new Category([], name)
+          }
+        }
+      }
     }
+    // create categories
+    // select active
+  }
+  loadConfig() {
+    this.service.getConfig().subscribe(config => {
+      this.accounts = config['accounts'];
+      this.acctSrc = config['acctSrc'];
+      this.homeDir = config['homeDir'];
+      this.updateAccount();
+    },
+      err => {
+        console.log(err);
+      })
   }
 
   loadSrc() {
@@ -79,12 +125,11 @@ export class AppComponent implements OnInit {
     this.service.getSrc(this.src).subscribe(records => {
       this.transactions.records = Util.transferRecord(records['records']);
       Util.merge(this.categories, this.transactions);
-      console.log(this.transactions);
     },
-    err => {
-      console.log(err);
-      this.srcErr =  true;
-    });
+      err => {
+        console.log(err);
+        this.srcErr = true;
+      });
   }
   drop(event: CdkDragDrop<string[]>) {
     if (event.previousContainer === event.container) {
@@ -167,7 +212,7 @@ export class AppComponent implements OnInit {
         category.records = Util.transferRecord(category.records);
       }
       // update selected category
-      if(!this.categories[this.selectedCategory]) {
+      if (!this.categories[this.selectedCategory]) {
         // if selectedCategory is not in updated categories
         let obj = this.categories;
         const firstCategory = obj[Object.keys(obj)[0]].name;
@@ -177,7 +222,7 @@ export class AppComponent implements OnInit {
       }
       this.category = this.categories[this.selectedCategory];
       // update categoryNames
-      this.categoryNames = Object.getOwnPropertyNames(categories);
+      //      this.categoryNames = Object.getOwnPropertyNames(categories);
       Util.merge(this.categories, this.transactions);
     });
   }
@@ -194,7 +239,11 @@ export class AppComponent implements OnInit {
   }
 
   categorySum() {
-    return Util.getSum(this.category.records);
+    if (this.category) {
+      return Util.getSum(this.category.records);
+    } else {
+      return 0;
+    }
   }
   transactionsSum() {
     return Util.getSum(this.transactions.records);

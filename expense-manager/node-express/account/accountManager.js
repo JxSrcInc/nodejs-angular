@@ -4,9 +4,15 @@ class AccountManager {
     constructor(rootDir) {
         this.rootDir = rootDir;
         this.map = {
+            jxsrc: new AccountJxsrc(),
+            '1013': new AccountRental(2),
+            '5376': new AccountRental(2),
+            '9076': new AccountRental(2),
+            '9298': new AccountRental(2),
+            '9374': new AccountRental(2),
+            '9860': new AccountRental(2),
             '9899': new AccountRental(2),
-            '13300': new AccountRental(),
-            jxsrc: new AccountJxsrc()
+            '13300': new AccountRental()
         }
     }
     get(filename) {
