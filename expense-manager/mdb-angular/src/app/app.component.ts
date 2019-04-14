@@ -267,17 +267,28 @@ export class AppComponent implements OnInit {
   * It will replace existing categories with loaded file.
   */
   loadJson() {
-    console.log(this.json);
+//    this.isEmptyCategories();
     if (this.json) {
+      if(!this.isEmptyCategories()) {
       if (!window.confirm("Reload data from " + this.homeDir + '/repository/' + this.json)) {
         return;
       }
+    }
       this.retrieveJson();
     } else {
       window.alert('No json file selected.');
     }
   }
 
+  isEmptyCategories() {
+    for (let i in this.categories) {
+      let category = this.categories[i];
+      if(category.records.length != 0) {
+        return false;
+      }
+    }
+    return true;
+  }
   retrieveJson() {
     this.service.getJson(this.json).subscribe(categories => {
       // replace this.categories with loaded file

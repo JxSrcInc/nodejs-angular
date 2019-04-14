@@ -1,6 +1,6 @@
 const Util = require('./util.js');
 const fs = require('fs');
-const Config = require('../config.js');
+const Config = require('../config.local.js');
 
 class AccountManager {
     constructor(rootDir) {

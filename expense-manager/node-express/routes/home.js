@@ -5,7 +5,6 @@ const ActiveAccountManager = require('../account/activeAccountManager');
 router.get('/', function(req, res, next) {
   const accountManager = new ActiveAccountManager();
   const map = accountManager.getMap();
-  console.log(map);
   let accounts = [];
   for(const key in map) {
     const categories = map[key].getCategories();
