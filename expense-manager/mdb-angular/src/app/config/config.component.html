@@ -1,31 +1,40 @@
-
 <div class="title">Config</div>
-<div *ngIf="error"  class="alert alert-danger">{{error}}</div>
+<div *ngIf="error" class="alert alert-danger">{{error}}</div>
 <div class="container-fluid">
   <div class="row">
     <!-- Left Panel-->
     <div class="col-sm-5">
       <div *ngFor="let info of getInfo()" class="list-group">
-        <li *ngIf="info.name!=selectedCategory" class="list-group-item d-flex justify-content-between align-items-center" id="{{info.name}}" (click)="onClick($event)">
-            {{info.name}}
-            <span class="badge badge-primary badge-pill">{{info.count}}</span>
-          </li>
-          <li *ngIf="info.name==selectedCategory" class="active list-group-item d-flex justify-content-between align-items-center" id="{{info.name}}">
-              {{info.name}}
-              <span class="badge badge-primary badge-pill">{{info.count}}</span>
-            </li>
-        </div>
+        <li *ngIf="info.name!=selectedCategory"
+          class="list-group-item d-flex justify-content-between align-items-center" id="{{info.name}}"
+          (click)="onClick($event)">
+          {{info.name}}
+          <span class="badge badge-primary badge-pill">{{info.count}}</span>
+        </li>
+        <li *ngIf="info.name==selectedCategory"
+          class="active list-group-item d-flex justify-content-between align-items-center" id="{{info.name}}">
+          {{info.name}}
+          <span class="badge badge-primary badge-pill">{{info.count}}</span>
+        </li>
+      </div>
 
     </div>
     <div class="col-sm-1"></div>
+    <!-- Right Panel -->
     <div class="col-sm-*">
       <div>
-      <label>New Category</label>
-      <input  class="form-control" [(ngModel)]="addConfig" type="text" (keypress)="onKeyPress($event)">
-    </div>
-    <div>
-        <button (click)="delete()">Delete</button>
-    </div>
-    </div>
+        <label>Selected Category</label>
+        <input  [ngModel]="selectedCategory" type="text" disabled>
+      </div>
+      <div>
+        <label>New Category</label>
+        <input  [(ngModel)]="addConfig" type="text" (keypress)="onKeyPress($event)">
+      </div>
+      <div>
+        <button (click)="create()">Create</button>
+           <button (click)="delete()" [disabled]='enableDelete() && !selectedCategory'>Delete</button>
+        
+      </div>
+
   </div>
 </div>

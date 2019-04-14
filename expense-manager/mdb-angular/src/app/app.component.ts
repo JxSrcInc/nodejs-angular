@@ -3,7 +3,7 @@ import { NodejsService } from './nodejs.service';
 import { Util } from './model/util';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { Category } from './model/category';
-import { Accounts } from './accounts';
+//import { Accounts } from './accounts';
 import { Config } from './config';
 import { Record } from './model/record';
 import * as $ from 'jquery';
@@ -31,10 +31,12 @@ export class AppComponent implements OnInit {
   src: string;
   srcErr: boolean = false;
   json: string;
+  jsonSaved: boolean = true;
 
   activeAccount: string;
   accounts: [];
-  acctSrc: [];
+  acctSrc: []; // src files in rootDir
+  acctJson: []; // json files in rootDir
   homeDir: string;
 
   public tableWidget: any;
@@ -65,19 +67,35 @@ export class AppComponent implements OnInit {
     this.loadConfig();
   }
 
-  selectAccount(account: string ) {
-    this.activeAccount = account;
+  selectAccount(event) {
+    if(this.activeAccount && !this.jsonSaved) {
+      if (window.confirm('Do you want to save "' + this.activeAccount)) {
+        window.alert('Please save "'+this.activeAccount+'"');
+//        event.cancelable = true;
+        event.stopPropagation();
+        event.preventDefault();
+        event.target = event.target.parentNode;    
+        console.log("This onClick method should prevent routerLink from executing.");
+//        event.returnValue = false;
+        console.log(event);
+        return;
+          }
+    }
+    this.activeAccount = event.target.value;
     this.updateAccount();
   }
   updateAccount() {
     for (let i in this.accounts) {
       const acct = this.accounts[i];
       if (acct['account'] == this.activeAccount) {
+        this.src = undefined;
+        this.json = undefined;
         // account id/name match
+        // match src first
         for (let k in this.acctSrc) {
           // get src file name for account and
           // setup this.src and this.json
-          var srcFile = String(this.acctSrc[k]);
+          var srcFile = String(this.acctSrc[k]); // convert to String type
           if (srcFile.includes(acct['account'])) {
             // src file name contains account id/name
             this.src = srcFile;
@@ -86,23 +104,43 @@ export class AppComponent implements OnInit {
             this.transactions = new Category([], "transactions");
 
             break;
-//          } else {
-  //          this.src = '';
-    //        this.json = '';
           }
         }
-        // setup category
-        // clean categories
-        this.categories = {};
-        let categoryNames = Object.values(acct['categories']);
-        if (categoryNames.length > 0) {
-          this.selectedCategory = String(categoryNames[0]);
-          this.category = new Category([], this.selectedCategory);
-          for(let i in categoryNames) {
-            const name = String(categoryNames[i]);
-            this.categories[name] = new Category([], name)
+        // match json second
+        // because it is possible there is a .json file but no .csv file
+        for (let k in this.acctJson) {
+          // get json file name for account and
+          // setup this.json
+          let jsonFile = String(this.acctJson[k]); // convert to String type 
+          if (jsonFile.includes(acct['account'])) {
+            // json file name contains account id/name
+            this.json = jsonFile;
+            this.transactions = new Category([], "transactions");
+            // no src file setup
+            break;
           }
         }
+
+        if (!this.json) {
+          if (window.confirm('account "' + acct['account'] + '" has no .json file and transactions buffer. Do you want create them?')) {
+            this.json = this.activeAccount+'.json';
+            this.transactions = new Category([], "transactions");                    
+          } else {
+            return;
+          }
+        }
+          // setup category
+          // clean categories
+          this.categories = {};
+          let categoryNames = Object.values(acct['categories']);
+          if (categoryNames.length > 0) {
+            this.selectedCategory = String(categoryNames[0]);
+            this.category = new Category([], this.selectedCategory);
+            for (let i in categoryNames) {
+              const name = String(categoryNames[i]);
+              this.categories[name] = new Category([], name)
+            }
+          }
       }
     }
     // create categories
@@ -113,6 +151,7 @@ export class AppComponent implements OnInit {
       this.accounts = config['accounts'];
       this.acctSrc = config['acctSrc'];
       this.homeDir = config['homeDir'];
+      this.acctJson = config['acctJson'];
       this.updateAccount();
     },
       err => {
@@ -121,15 +160,19 @@ export class AppComponent implements OnInit {
   }
 
   loadSrc() {
-    this.srcErr = false;
-    this.service.getSrc(this.src).subscribe(records => {
-      this.transactions.records = Util.transferRecord(records['records']);
-      Util.merge(this.categories, this.transactions);
-    },
-      err => {
-        console.log(err);
-        this.srcErr = true;
-      });
+    if (this.src) {
+      this.srcErr = false;
+      this.service.getSrc(this.src).subscribe(records => {
+        this.transactions.records = Util.transferRecord(records['records']);
+        Util.merge(this.categories, this.transactions);
+      },
+        err => {
+          console.log(err);
+          this.srcErr = true;
+        });
+    } else {
+      window.alert('no src file selected.');
+    }
   }
   drop(event: CdkDragDrop<string[]>) {
     if (event.previousContainer === event.container) {
@@ -148,6 +191,7 @@ export class AppComponent implements OnInit {
     }
   }
   onCategoryChange(selectedCategory: string) {
+    if(selectedCategory != 'Summary') {
     this.selectedCategory == selectedCategory;
 
     // update modified category
@@ -156,6 +200,7 @@ export class AppComponent implements OnInit {
     this.category = this.categories[selectedCategory];
     this.selectedCategory = selectedCategory;
     this.selectRecordIndex = 0;
+    }
   }
   setPage(event: any) {
     let page = event.target.value;
@@ -185,25 +230,55 @@ export class AppComponent implements OnInit {
     this.work = false;
   }
 
-  getCategoryNames() {
-    let names = Object.getOwnPropertyNames(this.categories);
-    return names;
+  getCategoryInfo() {
+    let info = [];
+    let tCount = 0;
+    let tSum = 0;
+    for (let property in this.categories) {
+      if (this.categories.hasOwnProperty(property)) {
+          let count = this.categories[property].records.length;
+          let sum = Util.getSum(this.categories[property].records);
+//          console.log(this.categories[property].name);
+          info.push({'category':this.categories[property].name, 'sum':sum, 'count': count});
+          tCount += count;
+          tSum += sum
+      }
+    }
+    info.unshift({'category':'Summary', 'sum':tSum, 'count': tCount})
+    return info;
   }
   getCategories() {
     return this.categories;
   }
   save() {
-    const json = this.json;
-    if (window.confirm("Save data to " + json)) {
-      this.service.postJson(json, JSON.stringify(this.categories)).subscribe(status => {
-        console.log(json + ' post: ' + status);
-      });
+    if (this.json) {
+      const json = this.json;
+      if (window.confirm("Save data to " + json)) {
+        this.service.postJson(json, JSON.stringify(this.categories)).subscribe(status => {
+          this.jsonSaved = true;
+          console.log(json + ' post: ' + status);
+        });
+      }
+    } else {
+      window.alert('No json file selected.');
     }
   }
   /*
   * It will replace existing categories with loaded file.
   */
   loadJson() {
+    console.log(this.json);
+    if (this.json) {
+      if (!window.confirm("Reload data from " + this.homeDir + '/repository/' + this.json)) {
+        return;
+      }
+      this.retrieveJson();
+    } else {
+      window.alert('No json file selected.');
+    }
+  }
+
+  retrieveJson() {
     this.service.getJson(this.json).subscribe(categories => {
       // replace this.categories with loaded file
       this.categories = Util.sortCategories(JSON.parse(categories));
@@ -224,10 +299,14 @@ export class AppComponent implements OnInit {
       // update categoryNames
       //      this.categoryNames = Object.getOwnPropertyNames(categories);
       Util.merge(this.categories, this.transactions);
+      this.jsonSaved = false;
     });
   }
   isSelected(category: string) {
     return this.selectedCategory == category;
+  }
+  isActiveAccount(account: string) {
+    return account == this.activeAccount;
   }
   // Right panel sort
   sortTransaction(col: string) {

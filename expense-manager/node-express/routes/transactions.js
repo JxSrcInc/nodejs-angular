@@ -7,7 +7,7 @@ router.get('/', async function(req, res, next) {
   const file = req.param("src");
   try {
     const data = await service.getData(file);
-    res.json(data);
+   res.json(data);
   } catch(err) {
     res.status(404);
     res.json(err);

@@ -4,14 +4,14 @@ import { Util } from '../model/util';
 @Component({
   selector: 'app-config',
   templateUrl: './config.component.html',
-  styleUrls: ['./config.component.css','../app.component.css']
+  styleUrls: ['./config.component.css', '../app.component.css']
 })
-export class ConfigComponent implements OnInit, AfterContentInit{
+export class ConfigComponent implements OnInit, AfterContentInit {
 
   @Input()
   categories: {};
   @Output() childDataChange = new EventEmitter<{}>();
-  addConfig: string;
+  addConfig: string = '';
   selectedCategory: string;
   error: string;
 
@@ -21,15 +21,19 @@ export class ConfigComponent implements OnInit, AfterContentInit{
   }
 
   ngAfterContentInit() {
-//    console.log(this.categories['Income'])
+    //    console.log(this.categories['Income'])
   }
   onKeyPress(event: any) {
+    var KeyID = event.keyCode;
+    console.log(event);
     console.log(event.key);
-    if(event.key == 'Enter') {
-      this.change(this.addConfig);
+
+    if (event.key == 'Enter') {
+//      this.change(this.addConfig);
     }
   }
-  change(value: string) {
+  change() {
+    const value = this.addConfig
     this.categories[value] = new Category([], value);
     this.categories = Util.sortCategories(this.categories);
     this.childDataChange.emit(this.categories);
@@ -39,26 +43,37 @@ export class ConfigComponent implements OnInit, AfterContentInit{
     let info = [];
     for (var property in this.categories) {
       if (this.categories.hasOwnProperty(property)) {
-          let count = this.categories[property].records.length;
-          info.push({'name':property, 'count': count});
+        let count = this.categories[property].records.length;
+        info.push({ 'name': property, 'count': count });
       }
     }
-//    console.log(info);
+    //    console.log(info);
     return info;
   }
+  // when user select category
   onClick(event: any) {
-//    console.log(event.target.id);
     this.selectedCategory = event.target.id;
   }
   delete() {
-    console.log(this.selectedCategory);
-    if(this.categories[this.selectedCategory].records.length == 0) {
-      // delete 
-      this.error = undefined;
-      delete this.categories[this.selectedCategory];
-    } else {
-      // error
-      this.error = "Cannot delete "+this.selectedCategory;
+    if (window.confirm('Do you want to delete "' + this.selectedCategory + '" ?')) {
+      if (this.categories[this.selectedCategory].records.length == 0) {
+        // delete 
+        this.error = undefined;
+        delete this.categories[this.selectedCategory];
+      } else {
+        // error
+        this.error = "Cannot delete " + this.selectedCategory;
+      }
     }
+  }
+  create() {
+    if (window.confirm('Do you want to change "' + this.categories[this.selectedCategory].name
+      + '" to "' + this.selectedCategory + '" ?')) {
+
+      }
+
+  }
+  enableDelete() {
+    return this.addConfig.length == 0;
   }
 }

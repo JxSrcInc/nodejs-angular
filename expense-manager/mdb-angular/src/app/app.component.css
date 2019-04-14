@@ -9,6 +9,7 @@
 }
 .active {
     color: blue;
+    text-align: left;
 }
 
 .title {
@@ -19,10 +20,12 @@
 .item {
     background-color: grey;
     color: white;
+    text-align: left;
 }
 .item:hover {
     background-color: blue;
-    color: white
+    color: white;
+    text-align: left;
 }
 .date{
     width: 80px;

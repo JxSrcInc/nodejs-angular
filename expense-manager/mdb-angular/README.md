@@ -8,7 +8,33 @@
 > npm install 
 6. Check anguler-bootstrap-md exists in node-modules folder.
 
-# Using MDBootstrap DataTable in Angular.
+# Set Bootstrap Container Width
+
+
+
+```
+<head>
+  <!-- use width below to change bootstrap container width -->
+  <style>
+    #wrapper {
+      width: 1360px;
+    }
+
+    #wrapper .container {
+      max-width: 100%;
+      display: block;
+    }
+  </style>
+
+</head>
+<body>
+  <div id="wrapper">
+    ......
+  </div>
+</body>
+```
+
+# Using MDBootstrap DataTable in Angular. (Deprecated)
 
 1. Install other dependencies for Material Data Table(_--save_ is optional. **ngcli ^7.0.0** automatically update dependencies section in package.json by default. But _--save-dev_ is required to update devDependencies section in package.json.)
 ```
