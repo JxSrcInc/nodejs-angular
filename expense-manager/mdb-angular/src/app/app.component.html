@@ -1,20 +1,23 @@
 <div class="container">
   <!-- tool bar -->
+  <!-- Display Category, Config and Summary button -->
   <span *ngFor="let page of pages">
     <button *ngIf="page==selectedPage" class="active" (click)="setWork()">{{page}}</button>
     <button *ngIf="page!=selectedPage" [(value)]="page" class="item" (click)="setPage($event)">{{page}}</button>
   </span>
   <span *ngIf='work'>{{homeDir}}</span>
 
-  <!-- work, config or summary view -->
+  <!-- config view -->
   <div *ngIf="config">
       {{activeAccount}}
     <app-config [(categories)]="categories"></app-config>
   </div>
+  <!-- summary view -->
   <div *ngIf="summary">
       {{activeAccount}}
     <app-summary [(categories)]="categories"></app-summary>
   </div>
+  <!-- work view -->
   <div *ngIf="work">
     <div class="row">
       <!-- count selection-->

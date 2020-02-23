@@ -77,8 +77,16 @@ export class ConfigComponent implements OnInit, AfterContentInit {
   rename() {
     if (window.confirm('Do you want to change "' + this.categories[this.selectedCategory].name
       + '" to "' + this.newCategory + '" ?')) {
-        delete this.categories[this.selectedCategory];
-        this.insert();
+        let newCategory = this.categories[this.selectedCategory];
+        newCategory.name = this.newCategory;
+            delete this.categories[this.selectedCategory];
+    this.categories[newCategory.name] = newCategory;
+        this.categories = Util.sortCategories(this.categories);
+        this.childDataChange.emit(this.categories);
+        this.getInfo();
+        this.newCategory = '';
+        this.selectedCategory = '';
+//        this.insert();
       }
 
   }
