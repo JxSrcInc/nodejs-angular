@@ -4,7 +4,7 @@ import { Util } from './model/util';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { Category } from './model/category';
 //import { Accounts } from './accounts';
-import { Config } from './config';
+import { AppConfig } from './config';
 import { Record } from './model/record';
 import * as $ from 'jquery';
 import 'datatables.net';
@@ -53,13 +53,12 @@ export class AppComponent implements OnInit {
     this.tableWidget = exampleId.DataTable({
       select: true
     });
-    console.log(this.tableWidget);
   }
 
   ngOnInit() {
     this.pages = ["Category", "Config", "Summary"];
     this.selectedPage = "Category";
-    const cfg = new Config();
+    const cfg = new AppConfig();
     this.activeAccount = cfg.activeAccount;
     // transactions and category must initialize otherwise html will have error
     this.transactions = new Category([], "transactions");
@@ -91,12 +90,12 @@ export class AppComponent implements OnInit {
         this.src = undefined;
         this.json = undefined;
         // account id/name match
-        // match src first
+        // match src(.csv) first
         for (let k in this.acctSrc) {
           // get src file name for account and
           // setup this.src and this.json
           var srcFile = String(this.acctSrc[k]); // convert to String type
-          if (srcFile.includes(acct['account'])) {
+          if (srcFile.includes(acct['account']) && !srcFile.toLowerCase().includes('back')) {
             // src file name contains account id/name
             this.src = srcFile;
             const index = srcFile.lastIndexOf('.');
@@ -112,7 +111,7 @@ export class AppComponent implements OnInit {
           // get json file name for account and
           // setup this.json
           let jsonFile = String(this.acctJson[k]); // convert to String type 
-          if (jsonFile.includes(acct['account'])) {
+          if (jsonFile.includes(acct['account']) && !jsonFile.toLowerCase().includes('back')) {
             // json file name contains account id/name
             this.json = jsonFile;
             this.transactions = new Category([], "transactions");
@@ -200,6 +199,7 @@ export class AppComponent implements OnInit {
     this.category = this.categories[selectedCategory];
     this.selectedCategory = selectedCategory;
     this.selectRecordIndex = 0;
+    this.selectRecord = null;
     }
   }
   setPage(event: any) {
@@ -238,7 +238,6 @@ export class AppComponent implements OnInit {
       if (this.categories.hasOwnProperty(property)) {
           let count = this.categories[property].records.length;
           let sum = Util.getSum(this.categories[property].records);
-//          console.log(this.categories[property].name);
           info.push({'category':this.categories[property].name, 'sum':sum, 'count': count});
           tCount += count;
           tSum += sum
@@ -250,9 +249,9 @@ export class AppComponent implements OnInit {
   getCategories() {
     return this.categories;
   }
-  save() {
-    if (this.json) {
-      const json = this.json;
+  saveJson(jsonFileName: string) {
+    if (jsonFileName) {
+      const json = jsonFileName;
       if (window.confirm("Save data to " + json)) {
         this.service.postJson(json, JSON.stringify(this.categories)).subscribe(status => {
           this.jsonSaved = true;
@@ -263,11 +262,16 @@ export class AppComponent implements OnInit {
       window.alert('No json file selected.');
     }
   }
+  save() {
+    this.saveJson(this.json);
+  }
+  backup() {
+    this.saveJson('back-'+this.json);
+  }
   /*
   * It will replace existing categories with loaded file.
   */
   loadJson() {
-//    this.isEmptyCategories();
     if (this.json) {
       if(!this.isEmptyCategories()) {
       if (!window.confirm("Reload data from " + this.homeDir + '/repository/' + this.json)) {
@@ -280,6 +284,14 @@ export class AppComponent implements OnInit {
     }
   }
 
+  resetCategory() {
+    for (let i in this.categories) {
+      let category = this.categories[i];
+      if(category.name != 'Deprecation') {
+        category.records = [];
+      };
+    }
+  }
   isEmptyCategories() {
     for (let i in this.categories) {
       let category = this.categories[i];
@@ -295,6 +307,7 @@ export class AppComponent implements OnInit {
       this.categories = Util.sortCategories(JSON.parse(categories));
       for (let i in this.categories) {
         let category = this.categories[i];
+        //console.log(category);
         category.records = Util.transferRecord(category.records);
       }
       // update selected category
@@ -344,10 +357,12 @@ export class AppComponent implements OnInit {
   add() {
     if (this.selectRecord) {
       let record = new Record();
+      if(this.selectRecord != null) {
       record.date = this.selectRecord.date;
       record.val = this.selectRecord.val;
       record.merchant = this.selectRecord.merchant;
       record.note = this.selectRecord.note;
+      }
       this.category.records.splice(0, 0, record);
     } else {
       this.category.records.splice(0, 0, new Record());

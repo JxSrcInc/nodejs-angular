@@ -11,9 +11,10 @@ export class ConfigComponent implements OnInit, AfterContentInit {
   @Input()
   categories: {};
   @Output() childDataChange = new EventEmitter<{}>();
-  addConfig: string = '';
+  newCategory: string = '';
   selectedCategory: string;
   error: string;
+  categoryInfo = [];
 
   constructor() { }
 
@@ -22,33 +23,24 @@ export class ConfigComponent implements OnInit, AfterContentInit {
 
   ngAfterContentInit() {
     //    console.log(this.categories['Income'])
+    this.getInfo();
   }
-  onKeyPress(event: any) {
-    var KeyID = event.keyCode;
-    console.log(event);
-    console.log(event.key);
-
+  onKeyDown(event: any) {
     if (event.key == 'Enter') {
-//      this.change(this.addConfig);
+//      this.change(this.newCategory);
     }
   }
+
   change() {
-    const value = this.addConfig
-    this.categories[value] = new Category([], value);
-    this.categories = Util.sortCategories(this.categories);
-    this.childDataChange.emit(this.categories);
-    this.addConfig = '';
   }
   getInfo() {
-    let info = [];
+    this.categoryInfo = [];
     for (var property in this.categories) {
       if (this.categories.hasOwnProperty(property)) {
         let count = this.categories[property].records.length;
-        info.push({ 'name': property, 'count': count });
+        this.categoryInfo.push({ 'name': property, 'count': count });
       }
     }
-    //    console.log(info);
-    return info;
   }
   // when user select category
   onClick(event: any) {
@@ -56,10 +48,12 @@ export class ConfigComponent implements OnInit, AfterContentInit {
   }
   delete() {
     if (window.confirm('Do you want to delete "' + this.selectedCategory + '" ?')) {
-      if (this.categories[this.selectedCategory].records.length == 0) {
+      if (this.categories[this.selectedCategory] != null && this.categories[this.selectedCategory].records.length == 0) {
         // delete 
         this.error = undefined;
         delete this.categories[this.selectedCategory];
+        this.getInfo();
+        this.selectedCategory = '';
       } else {
         // error
         this.error = "Cannot delete " + this.selectedCategory;
@@ -67,13 +61,25 @@ export class ConfigComponent implements OnInit, AfterContentInit {
     }
   }
   create() {
+    if (window.confirm('Do you want to create "' + this.newCategory + '" ?')) {
+      this.insert();
+      }
+  }
+  insert() {
+    const value = this.newCategory
+    this.categories[value] = new Category([], value);
+    this.categories = Util.sortCategories(this.categories);
+    this.childDataChange.emit(this.categories);
+    this.getInfo();
+    this.newCategory = '';
+    this.selectedCategory = '';
+  }
+  rename() {
     if (window.confirm('Do you want to change "' + this.categories[this.selectedCategory].name
-      + '" to "' + this.selectedCategory + '" ?')) {
-
+      + '" to "' + this.newCategory + '" ?')) {
+        delete this.categories[this.selectedCategory];
+        this.insert();
       }
 
-  }
-  enableDelete() {
-    return this.addConfig.length == 0;
   }
 }

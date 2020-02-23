@@ -4,7 +4,7 @@
   <div class="row">
     <!-- Left Panel-->
     <div class="col-sm-5">
-      <div *ngFor="let info of getInfo()" class="list-group">
+      <div *ngFor="let info of categoryInfo" class="list-group">
         <li *ngIf="info.name!=selectedCategory"
           class="list-group-item d-flex justify-content-between align-items-center" id="{{info.name}}"
           (click)="onClick($event)">
@@ -28,11 +28,13 @@
       </div>
       <div>
         <label>New Category</label>
-        <input  [(ngModel)]="addConfig" type="text" (keypress)="onKeyPress($event)">
+        <!-- use keydown to catch Backspace key. keypress dose not catch Backspace -->
+        <input  [(ngModel)]="newCategory" type="text" (keydown)="onKeyDown($event)">
       </div>
       <div>
         <button (click)="create()">Create</button>
-           <button (click)="delete()" [disabled]='enableDelete() && !selectedCategory'>Delete</button>
+        <button (click)="rename()" [disabled]='!selectedCategory'>Rename</button>
+        <button (click)="delete()" [disabled]='!selectedCategory'>Delete</button>
         
       </div>
 

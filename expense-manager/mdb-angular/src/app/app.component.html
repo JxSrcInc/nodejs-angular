@@ -47,6 +47,8 @@
         <input disabled type="text" [(ngModel)]="json" class="form-control" />
         <button (click)="save()">Save</button>
         <button (click)="loadJson()">Load</button>
+        <button (click)="backup()">Backup</button>
+        <button (click)="resetCategory()">Reset</button>
         <button (click)="add()">Add({{selectRecordIndex}})</button>
         <label *ngIf="categorySum() != 0">
           <span *ngIf="categorySum()>0" class="positive">
@@ -69,7 +71,7 @@
           </thead>
           <tbody *ngFor="let record of category.records ; let i = index" cdkDrag>
             <tr (click)="onRowClick(i)" class="selective">
-              <td><input class="date" type="text" [value]="record.date" (change)="onDataChange($event, 'date', i)"></td>
+              <td><input class="date" type="text" [value]="record.date" (change)="onDataChange($event, 'date', i)" required minlength="4"></td>
               <td *ngIf="record.val>0"><input class="positive val align-right" type="text"
                   (change)="onDataChange($event, 'val', i)" [value]="record.val  | number: '1.2'"></td>
               <td *ngIf="!(record.val>0)"><input class="negative val align-right" type="text"
