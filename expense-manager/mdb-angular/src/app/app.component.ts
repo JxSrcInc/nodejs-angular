@@ -27,7 +27,8 @@ export class AppComponent implements OnInit {
 
   work: boolean = true;
   config: boolean = false;
-  Categories: boolean = false;
+  summary: boolean = false;
+//  Categories: boolean = false;
   src: string;
   srcErr: boolean = false;
   json: string;
@@ -56,13 +57,13 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.pages = ["Category", "Config", "Categories"];
+    this.pages = ["Category", "Config", "Summary"];
     this.selectedPage = "Category";
     const cfg = new AppConfig();
     this.activeAccount = cfg.activeAccount;
     // transactions and category must initialize otherwise html will have error
-    this.transactions = new Category([], "transactions", 0);
-    this.category = new Category([], 'not init.', 0)
+    this.transactions = new Category([], "transactions", []);
+    this.category = new Category([], 'not init.', [])
     this.loadConfig();
   }
 
@@ -79,7 +80,7 @@ export class AppComponent implements OnInit {
         console.log(event);
         return;
           }
-    }
+    } 
     this.activeAccount = event.target.value;
     this.updateAccount();
   }
@@ -101,7 +102,7 @@ export class AppComponent implements OnInit {
             this.src = srcFile;
             const index = srcFile.lastIndexOf('.');
             this.json = srcFile.substring(0, index) + '.json';
-            this.transactions = new Category([], "transactions", 0);
+            this.transactions = new Category([], "transactions", []);
 
             break;
           }
@@ -115,7 +116,7 @@ export class AppComponent implements OnInit {
           if (jsonFile.includes(acct['account']) && !jsonFile.toLowerCase().includes('back')) {
             // json file name contains account id/name
             this.json = jsonFile;
-            this.transactions = new Category([], "transactions", 0);
+            this.transactions = new Category([], "transactions", []);
             // no src file setup
             break;
           }
@@ -124,7 +125,7 @@ export class AppComponent implements OnInit {
         if (!this.json) {
           if (window.confirm('account "' + acct['account'] + '" has no .json file and transactions buffer. Do you want create them?')) {
             this.json = this.activeAccount+'.json';
-            this.transactions = new Category([], "transactions", 0);                    
+            this.transactions = new Category([], "transactions", []);                    
           } else {
             return;
           }
@@ -135,10 +136,10 @@ export class AppComponent implements OnInit {
           let categoryNames = Object.values(acct['categories']);
           if (categoryNames.length > 0) {
             this.selectedCategory = String(categoryNames[0]);
-            this.category = new Category([], this.selectedCategory, 0);
+            this.category = new Category([], this.selectedCategory, []);
             for (let i in categoryNames) {
               const name = String(categoryNames[i]);
-              this.categories[name] = new Category([], name, 0)
+              this.categories[name] = new Category([], name, [])
             }
           }
       }
@@ -209,8 +210,8 @@ export class AppComponent implements OnInit {
     if (page == "Config") {
       this.setConfig();
     } else
-      if (page == "Categories") {
-        this.setCategories();
+      if (page == "Summary") {
+        this.setSummary();
       } else {
         this.setWork();
       }
@@ -218,15 +219,15 @@ export class AppComponent implements OnInit {
   setConfig() {
     this.config = true;
     this.work = false;
-    this.Categories = false;
+    this.summary = false;
   }
   setWork() {
     this.config = false;
     this.work = true;
-    this.Categories = false;
+    this.summary = false;
   }
-  setCategories() {
-    this.Categories = true;
+  setSummary() {
+    this.summary = true;
     this.config = false;
     this.work = false;
   }

@@ -89,12 +89,13 @@
           </tbody>
         </table>
         last year expense
-        <table class="table-hover">
-          <tbody *ngFor="let record of category.lastRecords ; let i = index" cdkDrag>
+        <table>
+          <tbody *ngFor="let record of category.lastRecords">
             <tr>
-              <td *ngIf="record.val>0" class="positive val  align-right">{{record.val  | number: '1.2' }}</td>
-              <td *ngIf="!(record.val>0)" class="negative val align-right">{{record.val  | number: '1.2'}}</td>
-              <td>{{record.merchant}} {{record.note}}</td>
+              <td *ngIf="record.val>0" class="positive val">{{record.val  | number: '1.2' }}</td>
+              <td *ngIf="!(record.val>0)" class="negative val">{{record.val  | number: '1.2'}}</td>
+              <td>{{record.merchant}}</td>
+              <td>{{record.note}}</td>
             </tr>
           </tbody>
         </table>
