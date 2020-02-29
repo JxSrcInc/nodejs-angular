@@ -27,7 +27,7 @@ export class AppComponent implements OnInit {
 
   work: boolean = true;
   config: boolean = false;
-  summary: boolean = false;
+  Categories: boolean = false;
   src: string;
   srcErr: boolean = false;
   json: string;
@@ -56,13 +56,13 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.pages = ["Category", "Config", "Summary"];
+    this.pages = ["Category", "Config", "Categories"];
     this.selectedPage = "Category";
     const cfg = new AppConfig();
     this.activeAccount = cfg.activeAccount;
     // transactions and category must initialize otherwise html will have error
-    this.transactions = new Category([], "transactions");
-    this.category = new Category([], 'not init.')
+    this.transactions = new Category([], "transactions", 0);
+    this.category = new Category([], 'not init.', 0)
     this.loadConfig();
   }
 
@@ -94,13 +94,14 @@ export class AppComponent implements OnInit {
         for (let k in this.acctSrc) {
           // get src file name for account and
           // setup this.src and this.json
+          console.log(this.acctSrc[k]);
           var srcFile = String(this.acctSrc[k]); // convert to String type
           if (srcFile.includes(acct['account']) && !srcFile.toLowerCase().includes('back')) {
             // src file name contains account id/name
             this.src = srcFile;
             const index = srcFile.lastIndexOf('.');
             this.json = srcFile.substring(0, index) + '.json';
-            this.transactions = new Category([], "transactions");
+            this.transactions = new Category([], "transactions", 0);
 
             break;
           }
@@ -114,7 +115,7 @@ export class AppComponent implements OnInit {
           if (jsonFile.includes(acct['account']) && !jsonFile.toLowerCase().includes('back')) {
             // json file name contains account id/name
             this.json = jsonFile;
-            this.transactions = new Category([], "transactions");
+            this.transactions = new Category([], "transactions", 0);
             // no src file setup
             break;
           }
@@ -123,7 +124,7 @@ export class AppComponent implements OnInit {
         if (!this.json) {
           if (window.confirm('account "' + acct['account'] + '" has no .json file and transactions buffer. Do you want create them?')) {
             this.json = this.activeAccount+'.json';
-            this.transactions = new Category([], "transactions");                    
+            this.transactions = new Category([], "transactions", 0);                    
           } else {
             return;
           }
@@ -134,10 +135,10 @@ export class AppComponent implements OnInit {
           let categoryNames = Object.values(acct['categories']);
           if (categoryNames.length > 0) {
             this.selectedCategory = String(categoryNames[0]);
-            this.category = new Category([], this.selectedCategory);
+            this.category = new Category([], this.selectedCategory, 0);
             for (let i in categoryNames) {
               const name = String(categoryNames[i]);
-              this.categories[name] = new Category([], name)
+              this.categories[name] = new Category([], name, 0)
             }
           }
       }
@@ -190,7 +191,7 @@ export class AppComponent implements OnInit {
     }
   }
   onCategoryChange(selectedCategory: string) {
-    if(selectedCategory != 'Summary') {
+    if(selectedCategory != 'Categories') {
     this.selectedCategory == selectedCategory;
 
     // update modified category
@@ -208,8 +209,8 @@ export class AppComponent implements OnInit {
     if (page == "Config") {
       this.setConfig();
     } else
-      if (page == "Summary") {
-        this.setSummary();
+      if (page == "Categories") {
+        this.setCategories();
       } else {
         this.setWork();
       }
@@ -217,15 +218,15 @@ export class AppComponent implements OnInit {
   setConfig() {
     this.config = true;
     this.work = false;
-    this.summary = false;
+    this.Categories = false;
   }
   setWork() {
     this.config = false;
     this.work = true;
-    this.summary = false;
+    this.Categories = false;
   }
-  setSummary() {
-    this.summary = true;
+  setCategories() {
+    this.Categories = true;
     this.config = false;
     this.work = false;
   }
@@ -234,16 +235,21 @@ export class AppComponent implements OnInit {
     let info = [];
     let tCount = 0;
     let tSum = 0;
+    let tLastSum = 0;
     for (let property in this.categories) {
       if (this.categories.hasOwnProperty(property)) {
-          let count = this.categories[property].records.length;
-          let sum = Util.getSum(this.categories[property].records);
-          info.push({'category':this.categories[property].name, 'sum':sum, 'count': count});
+        const category = this.categories[property]
+          let count = category.records.length;
+          let sum = Util.getSum(category.records);
+          let lastSum = Util.getSum(category.lastRecords);//category.lastYearSummary;
+          info.push({'category':category.name, 'sum':sum, 'count': count, 
+              'lastSum':lastSum});
           tCount += count;
-          tSum += sum
+          tSum += sum;
+          tLastSum += lastSum;
       }
     }
-    info.unshift({'category':'Summary', 'sum':tSum, 'count': tCount})
+    info.unshift({'category':'Categories', 'sum':tSum, 'count': tCount, 'lastSum':tLastSum})
     return info;
   }
   getCategories() {
@@ -284,13 +290,31 @@ export class AppComponent implements OnInit {
     }
   }
 
+  isResetCategory(name: string) {
+    let appConfig = new AppConfig();
+    for (let i in appConfig.resetExcludes) {
+        let excludeCategory = appConfig.resetExcludes[i];
+        if(name.toLowerCase() == excludeCategory.toLowerCase()) {
+            return false;
+        };
+    }
+    return true;
+
+  }
   resetCategory() {
     for (let i in this.categories) {
       let category = this.categories[i];
-      if(category.name != 'Deprecation') {
+//      if(category.name != 'Deprecation') {
+      const isResetCategory = this.isResetCategory(category.name);
+      if(isResetCategory) {
         category.records = [];
       };
     }
+      this.category = this.categories[this.selectedCategory];
+      // update categoryNames
+      //      this.categoryNames = Object.getOwnPropertyNames(categories);
+      Util.merge(this.categories, this.transactions);
+      this.jsonSaved = false;
   }
   isEmptyCategories() {
     for (let i in this.categories) {
@@ -302,12 +326,33 @@ export class AppComponent implements OnInit {
     return true;
   }
   retrieveJson() {
-    this.service.getJson(this.json).subscribe(categories => {
+    this.service.getJson(this.json).subscribe(content => {
+      const categories = content['categories'];
+//      console.log(categories);
+      let lastYearCategories = content['lastYear'];
+//      console.log(lastYearCategories);
       // replace this.categories with loaded file
       this.categories = Util.sortCategories(JSON.parse(categories));
+      lastYearCategories = Util.sortCategories(JSON.parse(lastYearCategories));
       for (let i in this.categories) {
         let category = this.categories[i];
-        //console.log(category);
+        category.lastYearSummary = 0;
+        for(let k in lastYearCategories) {
+          let lastYearCategory = lastYearCategories[k];
+//          console.log(category.name+","+lastYearCategory.name)
+          if(category.name == lastYearCategory.name) {
+            category.lastRecords = lastYearCategory.records;
+            /*
+            let sum = 0;
+            lastYearCategory.records.forEach(function(rec) {
+              sum += rec.val;
+            });
+            category.lastYearSummary = sum;
+            */
+//            console.log(category);
+            break;
+          }
+        }
         category.records = Util.transferRecord(category.records);
       }
       // update selected category
@@ -315,7 +360,6 @@ export class AppComponent implements OnInit {
         // if selectedCategory is not in updated categories
         let obj = this.categories;
         const firstCategory = obj[Object.keys(obj)[0]].name;
-        console.log(firstCategory);
         // replace category name list with 
         this.selectedCategory = firstCategory;
       }

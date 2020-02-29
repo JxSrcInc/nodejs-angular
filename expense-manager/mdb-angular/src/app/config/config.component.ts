@@ -67,7 +67,7 @@ export class ConfigComponent implements OnInit, AfterContentInit {
   }
   insert() {
     const value = this.newCategory
-    this.categories[value] = new Category([], value);
+    this.categories[value] = new Category([], value, 0);
     this.categories = Util.sortCategories(this.categories);
     this.childDataChange.emit(this.categories);
     this.getInfo();

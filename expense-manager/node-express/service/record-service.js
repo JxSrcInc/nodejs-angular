@@ -50,6 +50,12 @@ class RecordService {
         var fileContents = fs.readFileSync(file).toString();
         return fileContents;
     }
+    getFile(file) {
+        console.log('load: ' + file);
+        var fileContents = fs.readFileSync(file).toString();
+        return fileContents;
+    }
+
 }
 module.exports = RecordService;
 

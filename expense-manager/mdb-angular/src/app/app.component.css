@@ -1,8 +1,16 @@
 .positive {
     color: green;
 }
+.lastPositive {
+    color: rgb(3, 231, 3);
+    font-size: small;
+}
 .negative {
     color: red;
+}
+.lastNegative {
+    color: rgb(248, 83, 83);
+    font-size: small;
 }
 .fileErr {
     color: red;

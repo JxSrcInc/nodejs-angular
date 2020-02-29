@@ -4,6 +4,6 @@ export class AppConfig {
         srcDir: string = 'data/';
         jsonDir: string = 'repository/';
         activeAccount: string = 'jxsrc';
-        resetExcludes: string[] = ['Depreciation'];
+        resetExcludes: string[] = ['Deprecation'];
 
 }
