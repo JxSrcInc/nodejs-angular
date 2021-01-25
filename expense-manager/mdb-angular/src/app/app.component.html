@@ -9,12 +9,12 @@
 
   <!-- config view -->
   <div *ngIf="config">
-      {{activeAccount}}
+    {{activeAccount}}
     <app-config [(categories)]="categories"></app-config>
   </div>
   <!-- summary view -->
   <div *ngIf="summary">
-      {{activeAccount}}
+    {{activeAccount}}
     <app-summary [(categories)]="categories"></app-summary>
   </div>
   <!-- work view -->
@@ -31,23 +31,40 @@
       <!-- Left Panel-->
       <div class="col-2">
         <div class="list-group" *ngFor="let info of getCategoryInfo(); let i = index">
-          <button *ngIf="info.category!=selectedCategory && info.sum>0" class="item"
+          <button *ngIf="info.category!=selectedCategory && (info.sum>0)" class="item"
             (click)="onCategoryChange(info.category)">
             {{info.category}} <span class="positive">{{info.sum | number: '1.2'}}</span>
             ({{info.count}}) <span class="lastPositive">{{info.lastSum | number: '1.2'}}</span></button>
-          <button *ngIf="info.category!=selectedCategory && !(info.sum>0)" class="item"
+          <button *ngIf="info.category!=selectedCategory && ngtvVal(info.sum)" class="item"
             (click)="onCategoryChange(info.category)">
             {{info.category}} <span class="negative">{{-info.sum | number: '1.2'}}</span>
             ({{info.count}}) <span class="lastNegative">{{-info.lastSum | number: '1.2'}}</span> </button>
-          <button *ngIf="info.category==selectedCategory && info.sum>0" class="active"
+          <button *ngIf="info.category!=selectedCategory && (info.sum==0 && info.lastSum>0)" class="item"
             (click)="onCategoryChange(info.category)">
-            {{info.category}} <span class="positive">{{info.sum | number: '1.2'}}</span> 
+            {{info.category}} <span class="positive">{{info.sum | number: '1.2'}}</span>
             ({{info.count}}) <span class="lastPositive">{{info.lastSum | number: '1.2'}}</span></button>
-          <button *ngIf="info.category==selectedCategory && !(info.sum>0)" class="active"
+          <button *ngIf="info.category!=selectedCategory && (info.sum==0 && (info.lastSum==0 || ngtvVal(info.lastSum)))" class="item"
             (click)="onCategoryChange(info.category)">
-            {{info.category}} <span class="negative">{{-info.sum | number: '1.2'}}</span> 
-            ({{info.count}})  <span class="lastNegative">{{-info.lastSum | number: '1.2'}}</span></button>
-          </div>
+            {{info.category}} <span class="negative">{{-info.sum | number: '1.2'}}</span>
+            ({{info.count}}) <span class="lastNegative">{{-info.lastSum | number: '1.2'}}</span> </button>
+
+          <button *ngIf="info.category==selectedCategory && (info.sum>0)" class="active"
+            (click)="onCategoryChange(info.category)">
+            {{info.category}} <span class="positive">{{info.sum | number: '1.2'}}</span>
+            ({{info.count}}) <span class="lastPositive">{{info.lastSum | number: '1.2'}}</span></button>
+          <button *ngIf="info.category==selectedCategory && ngtvVal(info.sum)" class="active"
+            (click)="onCategoryChange(info.category)">
+            {{info.category}} <span class="negative">{{-info.sum | number: '1.2'}}</span>
+            ({{info.count}}) <span class="lastNegative">{{-info.lastSum | number: '1.2'}}</span></button>
+          <button *ngIf="info.category==selectedCategory && (info.sum==0 && info.lastSum>0)" class="item"
+            (click)="onCategoryChange(info.category)">
+            {{info.category}} <span class="positive">{{info.sum | number: '1.2'}}</span>
+            ({{info.count}}) <span class="lastPositive">{{info.lastSum | number: '1.2'}}</span></button>
+          <button *ngIf="info.category==selectedCategory && (info.sum==0 && (info.lastSum==0 || ngtvVal(info.lastSum)))" class="item"
+            (click)="onCategoryChange(info.category)">
+            {{info.category}} <span class="negative">{{-info.sum | number: '1.2'}}</span>
+            ({{info.count}}) <span class="lastNegative">{{-info.lastSum | number: '1.2'}}</span> </button>
+        </div>
       </div>
       <!-- Middle Panel-->
       <div class="col-4">
@@ -78,7 +95,8 @@
           </thead>
           <tbody *ngFor="let record of category.records ; let i = index" cdkDrag>
             <tr (click)="onRowClick(i)" class="selective">
-              <td><input class="date" type="text" [value]="record.date" (change)="onDataChange($event, 'date', i)" required minlength="4"></td>
+              <td><input class="date" type="text" [value]="record.date" (change)="onDataChange($event, 'date', i)"
+                  required minlength="4"></td>
               <td *ngIf="record.val>0"><input class="positive val align-right" type="text"
                   (change)="onDataChange($event, 'val', i)" [value]="record.val  | number: '1.2'"></td>
               <td *ngIf="!(record.val>0)"><input class="negative val align-right" type="text"
@@ -105,6 +123,7 @@
         <input *ngIf="!srcErr" type="text" [(ngModel)]="src" class="form-control" (change)="srcChange(i)" />
         <input *ngIf="srcErr" type="text" [(ngModel)]="src" class="form-control fileErr" (change)="srcChange(i)" />
         <button (click)="loadSrc()">Load</button>
+        Total: {{transCount}}
         Count: {{transactions.records.length}}
         <label *ngIf="transactionsSum() != 0">Sum:
           <span *ngIf="transactionsSum()>0" class="positive">

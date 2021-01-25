@@ -40,11 +40,13 @@ export class AppComponent implements OnInit {
   acctJson: []; // json files in rootDir
   homeDir: string;
 
+  transCount: number = 0;
+
   public tableWidget: any;
 
   constructor(private service: NodejsService) {
   }
-
+/*
   ngAfterViewInit() {
     this.initDatatable();
   }
@@ -55,7 +57,7 @@ export class AppComponent implements OnInit {
       select: true
     });
   }
-
+*/
   ngOnInit() {
     this.pages = ["Category", "Config", "Summary"];
     this.selectedPage = "Category";
@@ -68,21 +70,25 @@ export class AppComponent implements OnInit {
   }
 
   selectAccount(event) {
+    const prevActiveAccount = this.activeAccount;
     if(this.activeAccount && !this.jsonSaved) {
       if (window.confirm('Do you want to save "' + this.activeAccount)) {
         window.alert('Please save "'+this.activeAccount+'"');
+        // TODO: !!!!!!!!!!!!!!!!
 //        event.cancelable = true;
         event.stopPropagation();
         event.preventDefault();
-        event.target = event.target.parentNode;    
+//        event.target = event.target.parentNode;    
         console.log("This onClick method should prevent routerLink from executing.");
 //        event.returnValue = false;
         console.log(event);
+        this.activeAccount = prevActiveAccount;
         return;
-          }
+      }
     } 
     this.activeAccount = event.target.value;
     this.updateAccount();
+    this.transCount = 0;
   }
   updateAccount() {
     for (let i in this.accounts) {
@@ -149,6 +155,7 @@ export class AppComponent implements OnInit {
   }
   loadConfig() {
     this.service.getConfig().subscribe(config => {
+      console.log(config)
       this.accounts = config['accounts'];
       this.acctSrc = config['acctSrc'];
       this.homeDir = config['homeDir'];
@@ -164,7 +171,9 @@ export class AppComponent implements OnInit {
     if (this.src) {
       this.srcErr = false;
       this.service.getSrc(this.src).subscribe(records => {
+        console.log(records);
         this.transactions.records = Util.transferRecord(records['records']);
+        this.transCount = this.transactions.records.length;
         Util.merge(this.categories, this.transactions);
       },
         err => {
@@ -238,8 +247,11 @@ export class AppComponent implements OnInit {
     let tSum = 0;
     let tLastSum = 0;
     for (let property in this.categories) {
+//      console.log("********************************")
+//      console.log(property)
       if (this.categories.hasOwnProperty(property)) {
         const category = this.categories[property]
+//        console.log(category)
           let count = category.records.length;
           let sum = Util.getSum(category.records);
           let lastSum = Util.getSum(category.lastRecords);//category.lastYearSummary;
@@ -340,8 +352,8 @@ export class AppComponent implements OnInit {
         category.lastYearSummary = 0;
         for(let k in lastYearCategories) {
           let lastYearCategory = lastYearCategories[k];
-//          console.log(category.name+","+lastYearCategory.name)
-          if(category.name == lastYearCategory.name) {
+          if(category.name.toLowerCase() === lastYearCategory.name.toLowerCase() ) {
+            console.log(category.name+","+lastYearCategory.records)
             category.lastRecords = lastYearCategory.records;
             /*
             let sum = 0;
@@ -439,5 +451,11 @@ export class AppComponent implements OnInit {
     this.selectRecord = this.category.records[i];
     console.log(i);
     console.log(this.selectRecord);
+  }
+  pstvVal(val: number) {
+    return val>0;
+  }
+  ngtvVal(val: number) {
+    return val<0;
   }
 }

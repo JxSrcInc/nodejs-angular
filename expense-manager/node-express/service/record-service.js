@@ -13,7 +13,7 @@ class RecordService {
      * @param {*} file 
      */
     getData(file) {
-        console.log('load: ' + file);
+        console.log('RecordService.load: ' + file);
         return new Promise(async function (resolve, reject) {
             const fileTransfer = new ActiveAccountManager().get(file);
             if (fileTransfer) {
@@ -46,12 +46,12 @@ class RecordService {
      */
     getJson(file) {
         file = this.repoDir+file;
-        console.log('load: ' + file);
+        console.log('load Json: ' + file);
         var fileContents = fs.readFileSync(file).toString();
         return fileContents;
     }
     getFile(file) {
-        console.log('load: ' + file);
+        console.log('load File: ' + file);
         var fileContents = fs.readFileSync(file).toString();
         return fileContents;
     }

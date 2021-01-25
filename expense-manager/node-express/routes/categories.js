@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var RecordService = require('../service/record-service.js');
+const fs = require('fs');
 const Config = require('../config.local.js');
 var service = new RecordService();
 const config = new Config();
@@ -14,8 +15,19 @@ router.get('/', function(req, res, next) {
     const year = parseInt(lastYearFile.substring(i+1, i+3))-1;
     lastYearFile = lastYearFile.substring(0,i)+"_"+year.toString()+".json";
   }
-  console.log(lastYearFile);
-  res.json({categories:service.getJson(file),lastYear:service.getFile(lastYearFile)});
+  if(fs.existsSync(lastYearFile)) {
+    console.log(lastYearFile);
+    res.json({categories:service.getJson(file),lastYear:service.getFile(lastYearFile)});
+  } else {
+    console.log(lastYearFile+" does not exist.");
+    // not exist -> set category.records = []
+    const strFile = service.getJson(file);
+    let clone = JSON.parse(strFile);
+    Object.keys(clone).some((key) => {
+      clone[key].records = [];
+    });
+    res.json({categories:strFile,lastYear:JSON.stringify(clone)});
+  }
 });
 /* POST categories. */
 router.post('/', function(req, res, next) {

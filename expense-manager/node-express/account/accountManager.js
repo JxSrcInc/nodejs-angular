@@ -9,29 +9,29 @@ class AccountManager {
         }
         const accountMap = new Config().accountMap;
         accountMap.forEach((ele) => {
-            if(ele.account == 'AccountJxsrc') {
+            if (ele.account == 'AccountJxsrc') {
                 this.map[ele.id] = new AccountJxsrc();
             } else
-            if(ele.account == 'AccountNNZ') {
-                this.map[ele.id] = new AccountNNZ();
-            } else
-            if(ele.account == 'AccountRental') {
-                this.map[ele.id] = new AccountRental(ele.args);
-            } else
-            if(ele.account == 'AccountNewRental') {
-                this.map[ele.id] = new AccountNewRental(ele.args);
-            } else
-            if(ele.account == 'AccountHome') {
-                this.map[ele.id] = new AccountHome();
-            } 
+                if (ele.account == 'AccountNNZ') {
+                    this.map[ele.id] = new AccountNNZ();
+                } else
+                    if (ele.account == 'AccountRental') {
+                        this.map[ele.id] = new AccountRental(ele.args);
+                    } else
+                        if (ele.account == 'AccountNewRental') {
+                            this.map[ele.id] = new AccountNewRental(ele.args);
+                        } else
+                            if (ele.account == 'AccountHome') {
+                                this.map[ele.id] = new AccountHome();
+                            }
         })
-   }
+    }
     get(filename) {
-        console.log(filename);
-        for(const key in this.map) {
-            if(filename.includes(key)) {
+        console.log("AccountManager.get: " + filename);
+        for (const key in this.map) {
+            if (filename.includes(key)) {
                 const account = this.map[key];
-                account.setFilename(this.rootDir+'/data/'+filename);
+                account.setFilename(this.rootDir + '/data/' + filename);
                 return account;
             }
         }
@@ -43,29 +43,72 @@ class AccountManager {
     getMap() {
         return this.map;
     }
+
+    // modified to allow src file name has format key+<additional info>, like jxsrc <year>.csv
     getSrcFiles() {
-        const files = fs.readdirSync(this.rootDir+'/data');
         let filter = [];
-        for(let i in files) {
-            let index = files[i].lastIndexOf(".csv");
-            if(index == files[i].length-4) {
-                filter.push(files[i]);
+        const files = fs.readdirSync(this.rootDir + '/data');
+        for (const key in this.map) {
+            let found = undefined;
+            for (let i in files) {
+                let index = files[i].lastIndexOf(".csv");
+                if (index == files[i].length - 4) {
+                    const file = files[i]
+                    if (file.indexOf(key) == 0) {
+                        found = file
+                        break
+                    }
+                }
             }
+            if (found) {
+                filter.push(found)
+            } else {
+                console.warn(key+' has no src file in '+this.rootDir + '/data');
+            }
+
         }
         return filter;
     }
     getJsonFiles() {
-        const files = fs.readdirSync(this.rootDir+'/repository');
         let filter = [];
-        for(let i in files) {
-            let index = files[i].lastIndexOf(".json");
-            if(index == files[i].length-5) {
-                filter.push(files[i]);
+        for (const key in this.map) {
+            const file = this.rootDir + '/repository/' + key + '.json'
+            if (fs.existsSync(file)) {
+                //             console.log(file)
+                filter.push(key + ".json");
+            } else {
+                console.warn('cannot find ' + file);
             }
         }
         return filter;
     }
-
+    /*
+     getSrcFiles() {
+         const files = fs.readdirSync(this.rootDir+'/data');
+         let filter = [];
+         for(let i in files) {
+             let index = files[i].lastIndexOf(".csv");
+             console.log(index+","+files[i])
+             if(index == files[i].length-4) {
+                 filter.push(files[i]);
+             }
+         }
+         return filter;
+     }
+     */
+    /*
+     getJsonFiles() {
+         const files = fs.readdirSync(this.rootDir+'/repository');
+         let filter = [];
+         for(let i in files) {
+             let index = files[i].lastIndexOf(".json");
+             if(index == files[i].length-5) {
+                 filter.push(files[i]);
+             }
+         }
+         return filter;
+     }
+ */
 }
 
 class AccountJxsrc {
@@ -121,7 +164,7 @@ class AccountRental {
             }
             const date = new Date(data.Date);
             let formatted_date = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
-//            console.log(formatted_date + "," + val + "," + data.Merchant);
+            //            console.log(formatted_date + "," + val + "," + data.Merchant);
             return { 'date': formatted_date, 'val': val / this.split, 'merchant': data.Name, 'note': data.Description };
         }
 
@@ -132,7 +175,7 @@ class AccountRental {
     }
 }
 
-class AccountHome extends AccountRental{
+class AccountHome extends AccountRental {
     constructor() {
         super(1);
         this.config = new Config();
@@ -143,7 +186,7 @@ class AccountHome extends AccountRental{
     }
 }
 
-class AccountNewRental extends AccountRental{
+class AccountNewRental extends AccountRental {
     constructor(split) {
         super(split);
     }
@@ -153,7 +196,7 @@ class AccountNewRental extends AccountRental{
     }
 }
 
-class AccountNNZ extends AccountJxsrc{
+class AccountNNZ extends AccountJxsrc {
     constructor() {
         super(1);
         this.config = new Config();

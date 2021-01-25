@@ -5,6 +5,7 @@ class Loader {
     load(fileTransfer) {
         const results = [];
         const filename = fileTransfer.getFilename();
+        console.log("Loader.load: "+filename);
         return new Promise(function (resolve, reject) {
             if(!fs.existsSync(filename)) {
                 // must handle it in separately.
@@ -15,6 +16,7 @@ class Loader {
                 fs.createReadStream(filename)
                 .pipe(csv({trim:true,skip_empty_lines: true}))
                 .on('data', (data) => {
+//                    console.log(data);
                     const record = fileTransfer.convert(data);
                     if (record) {
                         results.push(record);
