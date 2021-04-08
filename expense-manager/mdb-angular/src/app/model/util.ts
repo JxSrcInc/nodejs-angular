@@ -67,14 +67,18 @@ export class Util {
         return records;
     }
     static transferDate(date: string) {
-        let arr = date.split("-");
-        if (arr[1].length == 1) {
-            arr[1] = '0' + arr[1];
+        if (date != undefined && date.indexOf('-') > 0) {
+            let arr = date.split("-");
+            if (arr[1].length == 1) {
+                arr[1] = '0' + arr[1];
+            }
+            if (arr[2].length == 1) {
+                arr[2] = '0' + arr[2];
+            }
+            return arr[0] + '-' + arr[1] + '-' + arr[2];
+        } else {
+            return date
         }
-        if (arr[2].length == 1) {
-            arr[2] = '0' + arr[2];
-        }
-        return arr[0] + '-' + arr[1] + '-' + arr[2];
     }
     static sort(records: Record[], col: string) {
         const first = records[0];
@@ -87,12 +91,12 @@ export class Util {
     }
     static sortCategories(src: {}) {
         let clone = JSON.parse(JSON.stringify(src))
-        Object.keys(clone).sort().forEach(function(key) {
+        Object.keys(clone).sort().forEach(function (key) {
             delete src[key];
-          });
-        Object.keys(clone).sort().forEach(function(key) {
+        });
+        Object.keys(clone).sort().forEach(function (key) {
             src[key] = clone[key];
-          });
+        });
         return src;
     }
 }

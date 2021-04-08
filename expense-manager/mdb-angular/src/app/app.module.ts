@@ -9,12 +9,14 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { ConfigComponent } from './config/config.component';
 import { FormsModule } from '@angular/forms';
 import { SummaryComponent } from './summary/summary.component';
+import { PrintComponent } from './print/print.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ConfigComponent,
-    SummaryComponent
+    SummaryComponent,
+    PrintComponent
   ],
   imports: [
     BrowserModule,

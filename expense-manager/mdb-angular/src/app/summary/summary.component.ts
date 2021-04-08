@@ -4,7 +4,7 @@ import { Util } from '../model/util';
 @Component({
   selector: 'app-summary',
   templateUrl: './summary.component.html',
-  styleUrls: ['./summary.component.scss','../app.component.css']
+  styleUrls: ['../app.component.css']
 })
 export class SummaryComponent implements OnInit {
   @Input()

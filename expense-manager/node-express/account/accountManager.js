@@ -54,7 +54,7 @@ class AccountManager {
                 let index = files[i].lastIndexOf(".csv");
                 if (index == files[i].length - 4) {
                     const file = files[i]
-                    if (file.indexOf(key) == 0) {
+                    if (file.indexOf(key) >= 0) {
                         found = file
                         break
                     }
@@ -126,9 +126,9 @@ class AccountJxsrc {
             let val;
             if (data.Expense.length == 0) {
                 // Income
-                val = parseFloat(data.Income);
+                val = parseFloat(Util.convertToFloat(data.Income));
             } else {
-                val = -parseFloat(data.Expense);
+                val = -parseFloat(Util.convertToFloat(data.Expense));
             }
             const date = new Date(data.Date);
             let formatted_date = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
@@ -154,6 +154,7 @@ class AccountRental {
         return this.filename;
     }
     convert(data) {
+        console.log(data)
         if (data.Date && (data.Expense || data.Revenue)) {
             let val;
             if (data.Expense.length == 0) {
@@ -175,7 +176,7 @@ class AccountRental {
     }
 }
 
-class AccountHome extends AccountRental {
+class AccountHome extends AccountJxsrc {
     constructor() {
         super(1);
         this.config = new Config();

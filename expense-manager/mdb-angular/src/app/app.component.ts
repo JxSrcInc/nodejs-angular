@@ -19,6 +19,7 @@ export class AppComponent implements OnInit {
   selectedPage: string;
   category: Category;
   categories = {};
+  categoryInfo = [];
   //  categoryNames: string[];
   selectedCategory: string;
   transactions: Category;
@@ -28,7 +29,8 @@ export class AppComponent implements OnInit {
   work: boolean = true;
   config: boolean = false;
   summary: boolean = false;
-//  Categories: boolean = false;
+  print: boolean = false;
+  //  Categories: boolean = false;
   src: string;
   srcErr: boolean = false;
   json: string;
@@ -46,20 +48,20 @@ export class AppComponent implements OnInit {
 
   constructor(private service: NodejsService) {
   }
-/*
-  ngAfterViewInit() {
-    this.initDatatable();
-  }
-
-  private initDatatable(): void {
-    let exampleId: any = $('#transaction');
-    this.tableWidget = exampleId.DataTable({
-      select: true
-    });
-  }
-*/
+  /*
+    ngAfterViewInit() {
+      this.initDatatable();
+    }
+  
+    private initDatatable(): void {
+      let exampleId: any = $('#transaction');
+      this.tableWidget = exampleId.DataTable({
+        select: true
+      });
+    }
+  */
   ngOnInit() {
-    this.pages = ["Category", "Config", "Summary"];
+    this.pages = ["Category", "Config", "Summary", "Print"];
     this.selectedPage = "Category";
     const cfg = new AppConfig();
     this.activeAccount = cfg.activeAccount;
@@ -71,21 +73,21 @@ export class AppComponent implements OnInit {
 
   selectAccount(event) {
     const prevActiveAccount = this.activeAccount;
-    if(this.activeAccount && !this.jsonSaved) {
+    if (this.activeAccount && !this.jsonSaved) {
       if (window.confirm('Do you want to save "' + this.activeAccount)) {
-        window.alert('Please save "'+this.activeAccount+'"');
+        window.alert('Please save "' + this.activeAccount + '"');
         // TODO: !!!!!!!!!!!!!!!!
-//        event.cancelable = true;
+        //        event.cancelable = true;
         event.stopPropagation();
         event.preventDefault();
-//        event.target = event.target.parentNode;    
+        //        event.target = event.target.parentNode;    
         console.log("This onClick method should prevent routerLink from executing.");
-//        event.returnValue = false;
+        //        event.returnValue = false;
         console.log(event);
         this.activeAccount = prevActiveAccount;
         return;
       }
-    } 
+    }
     this.activeAccount = event.target.value;
     this.updateAccount();
     this.transCount = 0;
@@ -101,13 +103,14 @@ export class AppComponent implements OnInit {
         for (let k in this.acctSrc) {
           // get src file name for account and
           // setup this.src and this.json
-          console.log(this.acctSrc[k]);
+//          console.log(this.acctSrc[k]);
           var srcFile = String(this.acctSrc[k]); // convert to String type
           if (srcFile.includes(acct['account']) && !srcFile.toLowerCase().includes('back')) {
             // src file name contains account id/name
             this.src = srcFile;
-            const index = srcFile.lastIndexOf('.');
-            this.json = srcFile.substring(0, index) + '.json';
+            //            const index = srcFile.lastIndexOf('.');
+            //            this.json = srcFile.substring(0, index) + '.json';
+            this.json = acct['account'] + '.json'
             this.transactions = new Category([], "transactions", []);
 
             break;
@@ -130,24 +133,24 @@ export class AppComponent implements OnInit {
 
         if (!this.json) {
           if (window.confirm('account "' + acct['account'] + '" has no .json file and transactions buffer. Do you want create them?')) {
-            this.json = this.activeAccount+'.json';
-            this.transactions = new Category([], "transactions", []);                    
+            this.json = this.activeAccount + '.json';
+            this.transactions = new Category([], "transactions", []);
           } else {
             return;
           }
         }
-          // setup category
-          // clean categories
-          this.categories = {};
-          let categoryNames = Object.values(acct['categories']);
-          if (categoryNames.length > 0) {
-            this.selectedCategory = String(categoryNames[0]);
-            this.category = new Category([], this.selectedCategory, []);
-            for (let i in categoryNames) {
-              const name = String(categoryNames[i]);
-              this.categories[name] = new Category([], name, [])
-            }
+        // setup category
+        // clean categories
+        this.categories = {};
+        let categoryNames = Object.values(acct['categories']);
+        if (categoryNames.length > 0) {
+          this.selectedCategory = String(categoryNames[0]);
+          this.category = new Category([], this.selectedCategory, []);
+          for (let i in categoryNames) {
+            const name = String(categoryNames[i]);
+            this.categories[name] = new Category([], name, [])
           }
+        }
       }
     }
     // create categories
@@ -201,16 +204,16 @@ export class AppComponent implements OnInit {
     }
   }
   onCategoryChange(selectedCategory: string) {
-    if(selectedCategory != 'Categories') {
-    this.selectedCategory == selectedCategory;
+    if (selectedCategory != 'Categories') {
+      this.selectedCategory == selectedCategory;
 
-    // update modified category
-    this.categories[this.selectedCategory] = this.category;
-    // get new category;
-    this.category = this.categories[selectedCategory];
-    this.selectedCategory = selectedCategory;
-    this.selectRecordIndex = 0;
-    this.selectRecord = null;
+      // update modified category
+      this.categories[this.selectedCategory] = this.category;
+      // get new category;
+      this.category = this.categories[selectedCategory];
+      this.selectedCategory = selectedCategory;
+      this.selectRecordIndex = 0;
+      this.selectRecord = null;
     }
   }
   setPage(event: any) {
@@ -221,7 +224,10 @@ export class AppComponent implements OnInit {
     } else
       if (page == "Summary") {
         this.setSummary();
-      } else {
+      } else
+      if (page == "Print") {
+        this.setPrint();
+     } else {
         this.setWork();
       }
   }
@@ -229,16 +235,25 @@ export class AppComponent implements OnInit {
     this.config = true;
     this.work = false;
     this.summary = false;
+    this.print = false;
   }
   setWork() {
     this.config = false;
     this.work = true;
     this.summary = false;
+    this.print = false;
   }
   setSummary() {
     this.summary = true;
     this.config = false;
     this.work = false;
+    this.print = false;
+  }
+  setPrint() {
+    this.summary = false;
+    this.config = false;
+    this.work = false;
+    this.print = true;
   }
 
   getCategoryInfo() {
@@ -247,22 +262,25 @@ export class AppComponent implements OnInit {
     let tSum = 0;
     let tLastSum = 0;
     for (let property in this.categories) {
-//      console.log("********************************")
-//      console.log(property)
+      //      console.log("********************************")
+      //      console.log(property)
       if (this.categories.hasOwnProperty(property)) {
         const category = this.categories[property]
-//        console.log(category)
-          let count = category.records.length;
-          let sum = Util.getSum(category.records);
-          let lastSum = Util.getSum(category.lastRecords);//category.lastYearSummary;
-          info.push({'category':category.name, 'sum':sum, 'count': count, 
-              'lastSum':lastSum});
-          tCount += count;
-          tSum += sum;
-          tLastSum += lastSum;
+        //        console.log(category)
+        let count = category.records.length;
+        let sum = Util.getSum(category.records);
+        let lastSum = Util.getSum(category.lastRecords);//category.lastYearSummary;
+        info.push({
+          'category': category.name, 'sum': sum, 'count': count,
+          'lastSum': lastSum
+        });
+        tCount += count;
+        tSum += sum;
+        tLastSum += lastSum;
       }
     }
-    info.unshift({'category':'Categories', 'sum':tSum, 'count': tCount, 'lastSum':tLastSum})
+    info.unshift({ 'category': 'Categories', 'sum': tSum, 'count': tCount, 'lastSum': tLastSum })
+    this.categoryInfo = info
     return info;
   }
   getCategories() {
@@ -285,18 +303,18 @@ export class AppComponent implements OnInit {
     this.saveJson(this.json);
   }
   backup() {
-    this.saveJson('back-'+this.json);
+    this.saveJson('back-' + this.json);
   }
   /*
   * It will replace existing categories with loaded file.
   */
   loadJson() {
     if (this.json) {
-      if(!this.isEmptyCategories()) {
-      if (!window.confirm("Reload data from " + this.homeDir + '/repository/' + this.json)) {
-        return;
+      if (!this.isEmptyCategories()) {
+        if (!window.confirm("Reload data from " + this.homeDir + '/repository/' + this.json)) {
+          return;
+        }
       }
-    }
       this.retrieveJson();
     } else {
       window.alert('No json file selected.');
@@ -306,10 +324,10 @@ export class AppComponent implements OnInit {
   isResetCategory(name: string) {
     let appConfig = new AppConfig();
     for (let i in appConfig.resetExcludes) {
-        let excludeCategory = appConfig.resetExcludes[i];
-        if(name.toLowerCase() == excludeCategory.toLowerCase()) {
-            return false;
-        };
+      let excludeCategory = appConfig.resetExcludes[i];
+      if (name.toLowerCase() == excludeCategory.toLowerCase()) {
+        return false;
+      };
     }
     return true;
 
@@ -317,22 +335,22 @@ export class AppComponent implements OnInit {
   resetCategory() {
     for (let i in this.categories) {
       let category = this.categories[i];
-//      if(category.name != 'Deprecation') {
+      //      if(category.name != 'Deprecation') {
       const isResetCategory = this.isResetCategory(category.name);
-      if(isResetCategory) {
+      if (isResetCategory) {
         category.records = [];
       };
     }
-      this.category = this.categories[this.selectedCategory];
-      // update categoryNames
-      //      this.categoryNames = Object.getOwnPropertyNames(categories);
-      Util.merge(this.categories, this.transactions);
-      this.jsonSaved = false;
+    this.category = this.categories[this.selectedCategory];
+    // update categoryNames
+    //      this.categoryNames = Object.getOwnPropertyNames(categories);
+    Util.merge(this.categories, this.transactions);
+    this.jsonSaved = false;
   }
   isEmptyCategories() {
     for (let i in this.categories) {
       let category = this.categories[i];
-      if(category.records.length != 0) {
+      if (category.records.length != 0) {
         return false;
       }
     }
@@ -341,19 +359,19 @@ export class AppComponent implements OnInit {
   retrieveJson() {
     this.service.getJson(this.json).subscribe(content => {
       const categories = content['categories'];
-//      console.log(categories);
+      //      console.log(categories);
       let lastYearCategories = content['lastYear'];
-//      console.log(lastYearCategories);
+      //      console.log(lastYearCategories);
       // replace this.categories with loaded file
       this.categories = Util.sortCategories(JSON.parse(categories));
       lastYearCategories = Util.sortCategories(JSON.parse(lastYearCategories));
       for (let i in this.categories) {
         let category = this.categories[i];
         category.lastYearSummary = 0;
-        for(let k in lastYearCategories) {
+        for (let k in lastYearCategories) {
           let lastYearCategory = lastYearCategories[k];
-          if(category.name.toLowerCase() === lastYearCategory.name.toLowerCase() ) {
-            console.log(category.name+","+lastYearCategory.records)
+          if (category.name.toLowerCase() === lastYearCategory.name.toLowerCase()) {
+//            console.log(category.name + "," + lastYearCategory.records)
             category.lastRecords = lastYearCategory.records;
             /*
             let sum = 0;
@@ -362,7 +380,7 @@ export class AppComponent implements OnInit {
             });
             category.lastYearSummary = sum;
             */
-//            console.log(category);
+            //            console.log(category);
             break;
           }
         }
@@ -414,11 +432,11 @@ export class AppComponent implements OnInit {
   add() {
     if (this.selectRecord) {
       let record = new Record();
-      if(this.selectRecord != null) {
-      record.date = this.selectRecord.date;
-      record.val = this.selectRecord.val;
-      record.merchant = this.selectRecord.merchant;
-      record.note = this.selectRecord.note;
+      if (this.selectRecord != null) {
+        record.date = this.selectRecord.date;
+        record.val = this.selectRecord.val;
+        record.merchant = this.selectRecord.merchant;
+        record.note = this.selectRecord.note;
       }
       this.category.records.splice(0, 0, record);
     } else {
@@ -453,9 +471,9 @@ export class AppComponent implements OnInit {
     console.log(this.selectRecord);
   }
   pstvVal(val: number) {
-    return val>0;
+    return val > 0;
   }
   ngtvVal(val: number) {
-    return val<0;
+    return val < 0;
   }
 }

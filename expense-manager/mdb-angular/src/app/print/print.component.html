@@ -1,0 +1,25 @@
+<div class="col-5">
+<div class="title">Print</div>
+
+<table id='print' class="table table-striped table-sm table-hover">
+<thead>
+  <tr>
+    <th scope="col">Category</th>
+    <th scope="col">This Year</th>
+    <th scope="col">Last Year</th>
+  </tr>
+</thead>
+<tbody *ngFor="let record of getInfo()" cdkDrag>
+  <tr>
+    <td>{{record.name}}</td>
+    <td *ngIf="record.sum>0" class="positive align-right">{{record.sum | number: '1.2'}}</td>
+    <td *ngIf="!(record.sum>0)" class="negative align-right">{{record.sum| number: '1.2'}}</td>
+    <td *ngIf="record.lastSum>0" class="positive align-right">{{record.lastSum | number: '1.2'}}</td>
+    <td *ngIf="!(record.lastSum>0)" class="negative align-right">{{record.lastSum| number: '1.2'}}</td>
+  </tr>
+</tbody>
+</table>
+
+
+
+</div>

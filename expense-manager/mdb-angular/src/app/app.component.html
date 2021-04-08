@@ -17,6 +17,11 @@
     {{activeAccount}}
     <app-summary [(categories)]="categories"></app-summary>
   </div>
+  <!-- print view -->
+  <div *ngIf="print">
+    {{activeAccount}}
+    <app-print [(categoryInfo)]="categoryInfo"></app-print>
+  </div>
   <!-- work view -->
   <div *ngIf="work">
     <div class="row">
